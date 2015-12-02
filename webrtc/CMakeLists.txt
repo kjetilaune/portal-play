@@ -11,7 +11,8 @@ set(webrtc_SOURCEPATH
 
 # Application level Code
 set(webrtcconnector_SRCS
-  "WebRtcConnector.cpp")
+  "WebRtcConnector.cpp"
+  "WebRtcEngine.cpp")
 
 add_executable(WebRtcConnector 
   ${webrtcconnector_SRCS})
@@ -19,22 +20,10 @@ add_executable(WebRtcConnector
 # WebRtc dependency
 include_directories(WebRtcConnector
   ${webrtc_SOURCEPATH}
-  ${webrtc_SOURCEPATH}/third_party
-  ${webrtc_SOURCEPATH}/third_party/webrtc
-  ${webrtc_SOURCEPATH}/webrtc
-  ${webrtc_SOURCEPATH}/third_party/libsrtp/srtp
-  ${webrtc_SOURCEPATH}/chromium/src/testing/gtest/include
   ${webrtc_SOURCEPATH}/chromium/src/third_party/jsoncpp/overrides/include
-  ${webrtc_SOURCEPATH}/chromium/src/third_party/jsoncpp/source/include
-  ${webrtc_SOURCEPATH}/chromium/src/third_party/expat/files/lib
-  ${webrtc_SOURCEPATH}/testing/gtest/include
-  ${webrtc_SOURCEPATH}/third_party/libyuv/include
-  ${webrtc_SOURCEPATH}/testing/gtest
-  ${webrtc_SOURCEPATH}/chromium/src/third_party/libsrtp/config
-  ${webrtc_SOURCEPATH}/chromium/src/third_party/libsrtp/srtp/include
-  ${webrtc_SOURCEPATH}/chromium/src/third_party/libsrtp/srtp/crypto/include)
+  ${webrtc_SOURCEPATH}/chromium/src/third_party/jsoncpp/source/include)
 
-set_target_properties(WebRtcConnector PROPERTIES COMPILE_DEFINITIONS "V8_DEPRECATION_WARNINGS;CLD_VERSION=2;EXPAT_RELATIVE_PATH;FEATURE_ENABLE_VOICEMAIL;GTEST_RELATIVE_PATH;JSONCPP_RELATIVE_PATH;LOGGING=1;SRTP_RELATIVE_PATH;FEATURE_ENABLE_SSL;FEATURE_ENABLE_PSTN;HAVE_SCTP;HAVE_SRTP;HAVE_WEBRTC_VIDEO;HAVE_WEBRTC_VOICE;__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORE=0;CHROMIUM_BUILD;CR_CLANG_REVISION=247874-1;USE_LIBJPEG_TURBO=1;ENABLE_ONE_CLICK_SIGNIN;ENABLE_PRE_SYNC_BACKUP;ENABLE_WEBRTC=1;ENABLE_MEDIA_ROUTER=1;ENABLE_PEPPER_CDMS;ENABLE_CONFIGURATION_POLICY;ENABLE_NOTIFICATIONS;ENABLE_HIDPI=1;DONT_EMBED_BUILD_METADATA;FIELDTRIAL_TESTING_ENABLED;ENABLE_TASK_MANAGER=1;ENABLE_EXTENSIONS=1;ENABLE_PDF=1;ENABLE_PLUGIN_INSTALLATION=1;ENABLE_PLUGINS=1;ENABLE_SESSION_SERVICE=1;ENABLE_THEMES=1;ENABLE_AUTOFILL_DIALOG=1;ENABLE_BACKGROUND=1;ENABLE_GOOGLE_NOW=1;ENABLE_PRINTING=1;ENABLE_BASIC_PRINTING=1;ENABLE_PRINT_PREVIEW=1;ENABLE_SPELLCHECK=1;USE_BROWSER_SPELLCHECKER=1;ENABLE_CAPTIVE_PORTAL_DETECTION=1;ENABLE_APP_LIST=1;ENABLE_SETTINGS_APP=1;ENABLE_SUPERVISED_USERS=1;ENABLE_SERVICE_DISCOVERY=1;V8_USE_EXTERNAL_STARTUP_DATA;FULL_SAFE_BROWSING;SAFE_BROWSING_CSD;SAFE_BROWSING_DB_LOCAL;OSX;WEBRTC_MAC;CARBON_DEPRECATED=YES;HASH_NAMESPACE=__gnu_cxx;WEBRTC_POSIX;DISABLE_DYNAMIC_CAST;_REENTRANT;GTEST_HAS_POSIX_RE=0;GTEST_LANG_CXX11=0;UNIT_TEST;GTEST_HAS_RTTI=0;XML_STATIC;USE_LIBPCI=1;USE_OPENSSL=1;DYNAMIC_ANNOTATIONS_ENABLED=1;WTF_USE_DYNAMIC_ANNOTATIONS=1;_DEBUG;")
+set_target_properties(WebRtcConnector PROPERTIES COMPILE_DEFINITIONS "V8_DEPRECATION_WARNINGS;CLD_VERSION=2;EXPAT_RELATIVE_PATH;FEATURE_ENABLE_VOICEMAIL;GTEST_RELATIVE_PATH;JSONCPP_RELATIVE_PATH;LOGGING=1;SRTP_RELATIVE_PATH;FEATURE_ENABLE_SSL;FEATURE_ENABLE_PSTN;HAVE_SCTP;HAVE_SRTP;HAVE_WEBRTC_VIDEO;HAVE_WEBRTC_VOICE;__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORE=0;CHROMIUM_BUILD;CR_CLANG_REVISION=247874-1;USE_LIBJPEG_TURBO=1;ENABLE_ONE_CLICK_SIGNIN;ENABLE_PRE_SYNC_BACKUP;ENABLE_WEBRTC=1;ENABLE_MEDIA_ROUTER=1;ENABLE_PEPPER_CDMS;ENABLE_CONFIGURATION_POLICY;ENABLE_NOTIFICATIONS;ENABLE_HIDPI=1;DONT_EMBED_BUILD_METADATA;FIELDTRIAL_TESTING_ENABLED;ENABLE_TASK_MANAGER=1;ENABLE_EXTENSIONS=1;ENABLE_PDF=1;ENABLE_PLUGIN_INSTALLATION=1;ENABLE_PLUGINS=1;ENABLE_SESSION_SERVICE=1;ENABLE_THEMES=1;ENABLE_AUTOFILL_DIALOG=1;ENABLE_BACKGROUND=1;ENABLE_GOOGLE_NOW=1;ENABLE_PRINTING=1;ENABLE_BASIC_PRINTING=1;ENABLE_PRINT_PREVIEW=1;ENABLE_SPELLCHECK=1;USE_BROWSER_SPELLCHECKER=1;ENABLE_CAPTIVE_PORTAL_DETECTION=1;ENABLE_APP_LIST=1;ENABLE_SETTINGS_APP=1;ENABLE_SUPERVISED_USERS=1;ENABLE_SERVICE_DISCOVERY=1;V8_USE_EXTERNAL_STARTUP_DATA;FULL_SAFE_BROWSING;SAFE_BROWSING_CSD;SAFE_BROWSING_DB_LOCAL;OSX;WEBRTC_MAC;CARBON_DEPRECATED=YES;HASH_NAMESPACE=__gnu_cxx;WEBRTC_POSIX;DISABLE_DYNAMIC_CAST;_REENTRANT;XML_STATIC;USE_LIBPCI=1;USE_OPENSSL=1;DYNAMIC_ANNOTATIONS_ENABLED=1;WTF_USE_DYNAMIC_ANNOTATIONS=1;_DEBUG;")
 
 set_target_properties(WebRtcConnector PROPERTIES COMPILE_FLAGS "-std=c++11 -stdlib=libc++ -fstack-protector --param=ssp-buffer-size=4 -Wheader-hygiene -Wno-char-subscripts -Wno-unneeded-internal-declaration -Wno-covered-switch-default -Wstring-conversion -Wno-c++11-narrowing -Wno-deprecated-register -Wno-inconsistent-missing-override -Wno-shift-negative-value -Wno-bitfield-width -Wno-unused-variable -Wno-undefined-bool-conversion -Wno-tautological-undefined-compare")
 
@@ -42,6 +31,7 @@ set_target_properties(WebRtcConnector PROPERTIES LINK_FLAGS "-Wl")
 
 set(webrtc_build_debug ${webrtc_SOURCEPATH}/out/Debug)
 target_link_libraries(WebRtcConnector
+  # WebRtc libs
   ${webrtc_build_debug}/libgmock.a
   ${webrtc_build_debug}/librtc_base_tests_utils.a
   ${webrtc_build_debug}/libwebrtc_common.a
@@ -95,7 +85,6 @@ target_link_libraries(WebRtcConnector
   ${webrtc_build_debug}/librtp_rtcp.a
   ${webrtc_build_debug}/libremote_bitrate_estimator.a
   ${webrtc_build_debug}/libpaced_sender.a
-  ${webrtc_build_debug}/libvideo_capture_module.a
   ${webrtc_build_debug}/libvideo_processing.a
   ${webrtc_build_debug}/libvideo_processing_sse2.a
   ${webrtc_build_debug}/libwebrtc_video_coding.a
@@ -116,9 +105,75 @@ target_link_libraries(WebRtcConnector
   ${webrtc_build_debug}/librtc_xmpp.a
   ${webrtc_build_debug}/librtc_p2p.a
   ${webrtc_build_debug}/libusrsctplib.a
-  ${webrtc_build_debug}/libvideo_capture_module_internal_impl.a
   ${webrtc_build_debug}/libvideo_render_module_internal_impl.a
   ${webrtc_build_debug}/libsrtp.a
+  ${webrtc_build_debug}/libvideo_capture_module_internal_impl.a
+  ${webrtc_build_debug}/libvideo_capture_module.a  
+  
+  # System libs
+  /System/Library/Frameworks/Cocoa.framework
+  /System/Library/Frameworks/Foundation.framework
+  /System/Library/Frameworks/IOKit.framework
+  /System/Library/Frameworks/Security.framework
+  /System/Library/Frameworks/SystemConfiguration.framework
+  /System/Library/Frameworks/Cocoa.framework
+  /System/Library/Frameworks/Foundation.framework
+  /System/Library/Frameworks/IOKit.framework
+  /System/Library/Frameworks/Security.framework
+  /System/Library/Frameworks/SystemConfiguration.framework
+  /System/Library/Frameworks/Cocoa.framework
+  /System/Library/Frameworks/Foundation.framework
+  /System/Library/Frameworks/IOKit.framework
+  /System/Library/Frameworks/Security.framework
+  /System/Library/Frameworks/SystemConfiguration.framework
+  /System/Library/Frameworks/Cocoa.framework
+  /System/Library/Frameworks/Foundation.framework
+  /System/Library/Frameworks/IOKit.framework
+  /System/Library/Frameworks/Security.framework
+  /System/Library/Frameworks/SystemConfiguration.framework
+  /System/Library/Frameworks/AVFoundation.framework
+  /System/Library/Frameworks/Cocoa.framework
+  /System/Library/Frameworks/CoreAudio.framework
+  /System/Library/Frameworks/CoreVideo.framework
+  /System/Library/Frameworks/OpenGL.framework
+  /System/Library/Frameworks/QTKit.framework
+  /System/Library/Frameworks/Cocoa.framework
+  /System/Library/Frameworks/Foundation.framework
+  /System/Library/Frameworks/IOKit.framework
+  /System/Library/Frameworks/Security.framework
+  /System/Library/Frameworks/SystemConfiguration.framework
+  /System/Library/Frameworks/Cocoa.framework
+  /System/Library/Frameworks/Foundation.framework
+  /System/Library/Frameworks/IOKit.framework
+  /System/Library/Frameworks/Security.framework
+  /System/Library/Frameworks/SystemConfiguration.framework
+  /System/Library/Frameworks/Cocoa.framework
+  /System/Library/Frameworks/Foundation.framework
+  /System/Library/Frameworks/IOKit.framework
+  /System/Library/Frameworks/Security.framework
+  /System/Library/Frameworks/SystemConfiguration.framework
+  /System/Library/Frameworks/Cocoa.framework
+  /System/Library/Frameworks/Foundation.framework
+  /System/Library/Frameworks/IOKit.framework
+  /System/Library/Frameworks/Security.framework
+  /System/Library/Frameworks/SystemConfiguration.framework
+  /System/Library/Frameworks/Cocoa.framework
+  /System/Library/Frameworks/Foundation.framework
+  /System/Library/Frameworks/IOKit.framework
+  /System/Library/Frameworks/Security.framework
+  /System/Library/Frameworks/SystemConfiguration.framework
+  /System/Library/Frameworks/Cocoa.framework
+  /System/Library/Frameworks/CoreVideo.framework
+  /System/Library/Frameworks/QTKit.framework
+  /System/Library/Frameworks/Cocoa.framework
+  /System/Library/Frameworks/Foundation.framework
+  /System/Library/Frameworks/IOKit.framework
+  /System/Library/Frameworks/Security.framework
+  /System/Library/Frameworks/SystemConfiguration.framework
+  /System/Library/Frameworks/Cocoa.framework
+  /System/Library/Frameworks/Foundation.framework
+  /System/Library/Frameworks/IOKit.framework
+  /System/Library/Frameworks/Security.framework
 
   /System/Library/Frameworks/Foundation.framework
   /System/Library/Frameworks/ApplicationServices.framework
