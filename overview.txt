@@ -1,0 +1,41 @@
+
+Weapons:
+
+	Defensive:
+		- Laser (hold head still)
+		- Shield (wave both hands)
+		- Bullet (wave hand in upper left corner)
+
+	Offensive:
+		- Bullet (hand in other upper right corner)
+		- Rocket (hand in other upper right corner)
+
+//-------------------------------------------------\\
+
+Bonuses:
+	
+	- Health (grab by waving hand over a heart-object)
+	- Ammunition (grab by waving hand over an ammo-object)
+
+//-------------------------------------------------\\
+
+Masks
+
+	Should be shown over players' heads in real-time
+
+//-------------------------------------------------//
+
+Animations
+
+	Player hit
+		When hit, birds should fly around a player's head, indicationg the player's confusion.
+
+
+	Bullet/Rocket destroyed
+		Object should disintegrate into smaller pieces and fade out
+
+	
+	Objects
+		Should blend with world. Posibility of motion blur
+
+//-------------------------------------------------//
