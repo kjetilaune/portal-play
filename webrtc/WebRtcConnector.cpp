@@ -1,13 +1,28 @@
+#include "WebRtcEngine.h"
+
 #include <stdio.h>
+#include <iostream>
 
-#include "talk/app/webrtc/peerconnection.h"
-#include "talk/app/webrtc/peerconnectionfactory.h"
-#include "talk/app/webrtc/peerconnectioninterface.h"
 
+// Blocks until key is pressed
+void block() {
+  while(std::cin.get() != '\n') {
+  }
+}
+
+//-------------------------------------------------------------------------
 int main(void) {
-  webrtc::PeerConnectionFactoryInterface* p;
-  p = webrtc::CreatePeerConnectionFactory(
-      NULL, NULL, NULL, NULL, NULL);
+  
+  rtcapp::WebRtcEngine engine;
+  
+  engine.Initialize();
+  block();
+
+  engine.CreateVideoCapturer();
+  block();
+
+  engine.AddStreams();
+  block();  
 
   return 0;
 }
