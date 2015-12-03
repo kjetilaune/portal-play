@@ -30,6 +30,7 @@
 #include "drawer.h"
 #include "camera_handler.h"
 #include "bullet.h"
+#include "bird.h"
 
 using namespace cv;
 using namespace std;
@@ -39,7 +40,7 @@ int width = 2880;
 int height = 1800;
 int current_quad = 9, current_quad_z;
 
-
+int rotcnt = 0;
 
 const int number_of_quads = 10;
 //const float screen_width_in_cm = 33.2;22.1
@@ -78,6 +79,7 @@ const int FH = 17; // faceheight
 Drawer *drawer;
 CameraHandler *camera_handler;
 Bullet *bullet;
+Bird *bird;
 
 // a useful function for displaying your coordinate system
 void drawAxes(float length)
@@ -260,7 +262,10 @@ void display()
   drawer->draw_view_box(screen_width_in_cm, screen_height_in_cm);
   glEnable(GL_DEPTH_TEST);
   
-
+  rotcnt++;
+  glPushAttrib(GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT) ;
+  glDisable(GL_LIGHTING) ;
+  bird->draw(0,0,0, rotcnt%360);
 
   if (bullet != NULL){
     
@@ -501,6 +506,8 @@ int main( int argc, char **argv )
 
 
   drawer = new Drawer("/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/hw3/stadium2.jpg");
+
+  bird = new Bird();
 
   target_texture = imread(texture_path, CV_LOAD_IMAGE_UNCHANGED);
 
