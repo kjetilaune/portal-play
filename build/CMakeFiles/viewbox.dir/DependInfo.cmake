@@ -4,6 +4,8 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
+  "/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/camera_handler.cpp" "/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/build/CMakeFiles/viewbox.dir/camera_handler.cpp.o"
+  "/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/camera_handler.h" "/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/build/CMakeFiles/viewbox.dir/camera_handler.h.o"
   "/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/drawer.cpp" "/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/build/CMakeFiles/viewbox.dir/drawer.cpp.o"
   "/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/drawer.h" "/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/build/CMakeFiles/viewbox.dir/drawer.h.o"
   "/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/main.cpp" "/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/build/CMakeFiles/viewbox.dir/main.cpp.o"

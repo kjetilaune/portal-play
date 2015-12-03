@@ -6,6 +6,18 @@
 
 #IncludeRegexTransform: 
 
+/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/camera_handler.cpp
+camera_handler.h
+/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/camera_handler.h
+
+/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/camera_handler.h
+opencv2/opencv.hpp
+-
+opencv/highgui.h
+-
+stdlib.h
+-
+
 /Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/drawer.cpp
 drawer.h
 /Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/drawer.h
@@ -1063,6 +1075,8 @@ player.h
 /Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/player.h
 drawer.h
 /Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/drawer.h
+camera_handler.h
+/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/camera_handler.h
 
 /Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/player.cpp
 player.h

@@ -177,13 +177,63 @@ CMakeFiles/viewbox.dir/drawer.h.o.provides: CMakeFiles/viewbox.dir/drawer.h.o.re
 CMakeFiles/viewbox.dir/drawer.h.o.provides.build: CMakeFiles/viewbox.dir/drawer.h.o
 
 
+CMakeFiles/viewbox.dir/camera_handler.cpp.o: CMakeFiles/viewbox.dir/flags.make
+CMakeFiles/viewbox.dir/camera_handler.cpp.o: ../camera_handler.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/viewbox.dir/camera_handler.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/viewbox.dir/camera_handler.cpp.o -c /Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/camera_handler.cpp
+
+CMakeFiles/viewbox.dir/camera_handler.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/viewbox.dir/camera_handler.cpp.i"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/camera_handler.cpp > CMakeFiles/viewbox.dir/camera_handler.cpp.i
+
+CMakeFiles/viewbox.dir/camera_handler.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/viewbox.dir/camera_handler.cpp.s"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/camera_handler.cpp -o CMakeFiles/viewbox.dir/camera_handler.cpp.s
+
+CMakeFiles/viewbox.dir/camera_handler.cpp.o.requires:
+
+.PHONY : CMakeFiles/viewbox.dir/camera_handler.cpp.o.requires
+
+CMakeFiles/viewbox.dir/camera_handler.cpp.o.provides: CMakeFiles/viewbox.dir/camera_handler.cpp.o.requires
+	$(MAKE) -f CMakeFiles/viewbox.dir/build.make CMakeFiles/viewbox.dir/camera_handler.cpp.o.provides.build
+.PHONY : CMakeFiles/viewbox.dir/camera_handler.cpp.o.provides
+
+CMakeFiles/viewbox.dir/camera_handler.cpp.o.provides.build: CMakeFiles/viewbox.dir/camera_handler.cpp.o
+
+
+CMakeFiles/viewbox.dir/camera_handler.h.o: CMakeFiles/viewbox.dir/flags.make
+CMakeFiles/viewbox.dir/camera_handler.h.o: ../camera_handler.h
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/viewbox.dir/camera_handler.h.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/viewbox.dir/camera_handler.h.o -c /Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/camera_handler.h
+
+CMakeFiles/viewbox.dir/camera_handler.h.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/viewbox.dir/camera_handler.h.i"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/camera_handler.h > CMakeFiles/viewbox.dir/camera_handler.h.i
+
+CMakeFiles/viewbox.dir/camera_handler.h.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/viewbox.dir/camera_handler.h.s"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/camera_handler.h -o CMakeFiles/viewbox.dir/camera_handler.h.s
+
+CMakeFiles/viewbox.dir/camera_handler.h.o.requires:
+
+.PHONY : CMakeFiles/viewbox.dir/camera_handler.h.o.requires
+
+CMakeFiles/viewbox.dir/camera_handler.h.o.provides: CMakeFiles/viewbox.dir/camera_handler.h.o.requires
+	$(MAKE) -f CMakeFiles/viewbox.dir/build.make CMakeFiles/viewbox.dir/camera_handler.h.o.provides.build
+.PHONY : CMakeFiles/viewbox.dir/camera_handler.h.o.provides
+
+CMakeFiles/viewbox.dir/camera_handler.h.o.provides.build: CMakeFiles/viewbox.dir/camera_handler.h.o
+
+
 # Object files for target viewbox
 viewbox_OBJECTS = \
 "CMakeFiles/viewbox.dir/main.cpp.o" \
 "CMakeFiles/viewbox.dir/player.cpp.o" \
 "CMakeFiles/viewbox.dir/player.h.o" \
 "CMakeFiles/viewbox.dir/drawer.cpp.o" \
-"CMakeFiles/viewbox.dir/drawer.h.o"
+"CMakeFiles/viewbox.dir/drawer.h.o" \
+"CMakeFiles/viewbox.dir/camera_handler.cpp.o" \
+"CMakeFiles/viewbox.dir/camera_handler.h.o"
 
 # External object files for target viewbox
 viewbox_EXTERNAL_OBJECTS =
@@ -193,6 +243,8 @@ viewbox: CMakeFiles/viewbox.dir/player.cpp.o
 viewbox: CMakeFiles/viewbox.dir/player.h.o
 viewbox: CMakeFiles/viewbox.dir/drawer.cpp.o
 viewbox: CMakeFiles/viewbox.dir/drawer.h.o
+viewbox: CMakeFiles/viewbox.dir/camera_handler.cpp.o
+viewbox: CMakeFiles/viewbox.dir/camera_handler.h.o
 viewbox: CMakeFiles/viewbox.dir/build.make
 viewbox: /usr/local/lib/libopencv_videostab.3.0.0.dylib
 viewbox: /usr/local/lib/libopencv_superres.3.0.0.dylib
@@ -214,7 +266,7 @@ viewbox: /usr/local/lib/libopencv_core.3.0.0.dylib
 viewbox: /usr/local/lib/libopencv_hal.a
 viewbox: /usr/local/share/OpenCV/3rdparty/lib/libippicv.a
 viewbox: CMakeFiles/viewbox.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable viewbox"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX executable viewbox"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/viewbox.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -227,6 +279,8 @@ CMakeFiles/viewbox.dir/requires: CMakeFiles/viewbox.dir/player.cpp.o.requires
 CMakeFiles/viewbox.dir/requires: CMakeFiles/viewbox.dir/player.h.o.requires
 CMakeFiles/viewbox.dir/requires: CMakeFiles/viewbox.dir/drawer.cpp.o.requires
 CMakeFiles/viewbox.dir/requires: CMakeFiles/viewbox.dir/drawer.h.o.requires
+CMakeFiles/viewbox.dir/requires: CMakeFiles/viewbox.dir/camera_handler.cpp.o.requires
+CMakeFiles/viewbox.dir/requires: CMakeFiles/viewbox.dir/camera_handler.h.o.requires
 
 .PHONY : CMakeFiles/viewbox.dir/requires
 

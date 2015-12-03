@@ -4,6 +4,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/viewbox.dir/player.h.o"
   "CMakeFiles/viewbox.dir/drawer.cpp.o"
   "CMakeFiles/viewbox.dir/drawer.h.o"
+  "CMakeFiles/viewbox.dir/camera_handler.cpp.o"
+  "CMakeFiles/viewbox.dir/camera_handler.h.o"
   "viewbox.pdb"
   "viewbox"
 )

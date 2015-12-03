@@ -28,17 +28,20 @@
 
 #include "player.h"
 #include "drawer.h"
+#include "camera_handler.h"
 
 using namespace cv;
 using namespace std;
 
-cv::VideoCapture *cap = NULL;
-int width = 640;
-int height = 480;
+
+int width = 2880;
+int height = 1800;
 int current_quad = 9, current_quad_z;
 const int number_of_quads = 10;
-const float screen_width_in_cm = 33.2;
-const float screen_height_in_cm = 21.35;
+//const float screen_width_in_cm = 33.2;22.1
+//const float screen_height_in_cm = 21.35;12.8
+const float screen_width_in_cm = 22.1;
+const float screen_height_in_cm = 12.8;
 const float camera_distance_from_center = screen_height_in_cm/2 + 0.5;
 double  x, y, z, 
         near = 1, far = 100;
@@ -71,6 +74,7 @@ CascadeClassifier frontalface_cascade_classifier;
 const int FH = 17; // faceheight
 
 Drawer *drawer;
+CameraHandler *camera_handler;
 
 // a useful function for displaying your coordinate system
 void drawAxes(float length)
@@ -189,7 +193,7 @@ void display()
   //////////////////////////////////////////////////////////////////////////////////
   // Here, set up new parameters to render a scene viewed from the camera.
 
-  
+  //glViewport(0, 0, 2880, 1800);
   glViewport(0, 0, tempimage.size().width, tempimage.size().height);
 
   find_clipping_planes();
@@ -261,7 +265,7 @@ void idle()
 {
   Mat prev, prev_gray;
   // grab a frame from the camera
-  (*cap) >> image;
+  image = camera_handler->get_image_from_camera();
   
   double aspect_ratio = image.size().width*1.0 / image.size().height;
   Size s(320, int(320.0/aspect_ratio));
@@ -317,6 +321,13 @@ void idle()
   z = fy * (FH) / (max_rect.height);
   x = pixel_to_cm(max_rect.x + max_rect.width/2.0, max_rect.width); //NOT sure why 1.25 gives nice results...
   y = ((image.size().height/2.0 - (max_rect.y + max_rect.height/2)) / (max_rect.height / FH));
+
+  if (x < -screen_width_in_cm/2)
+    x = -screen_width_in_cm/2 + 0.1;
+  if (x > screen_width_in_cm/2)
+    x = screen_width_in_cm/2 - 0.1;
+  cout << -screen_width_in_cm/2;
+  cout << x << endl;
 }
 
 void populateParameterList(char* s, std::vector<float>& list){
@@ -360,6 +371,8 @@ int main( int argc, char **argv )
 
   drawer = new Drawer("/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/hw3/stadium2.jpg");
 
+  //camera_handler = new CameraHandler();
+
   //Generate random positions
   //populate_quad_position_lists();
 
@@ -372,28 +385,22 @@ int main( int argc, char **argv )
   target_texture = imread(texture_path, CV_LOAD_IMAGE_UNCHANGED);
     
   if ( argc == 1 ) {
-    // start video capture from camera
-    cap = new cv::VideoCapture(0);
+    camera_handler = new CameraHandler();
   } else if ( argc == 2 ) {
     char* paramsPath(argv[1]);
     std::vector<float> paramList;
     populateParameterList(paramsPath, paramList);
     assignParameterVariables(paramList);
-    cap = new cv::VideoCapture(0);
+    camera_handler = new CameraHandler();
   } else {
     fprintf( stderr, "usage: %s [<filename>]\n", argv[0] );
     return 1;
   }
 
-  // check that video is opened
-  if ( cap == NULL || !cap->isOpened() ) {
-    fprintf( stderr, "could not start video capture\n" );
-    return 1;
-  }
 
   // get width and height
-  w = (int) cap->get( CV_CAP_PROP_FRAME_WIDTH );
-  h = (int) cap->get( CV_CAP_PROP_FRAME_HEIGHT );
+  w = camera_handler->get_width();
+  h = camera_handler->get_height();
   // On Linux, there is currently a bug in OpenCV that returns 
   // zero for both width and height here (at least for video from file)
   // hence the following override to global variable defaults: 

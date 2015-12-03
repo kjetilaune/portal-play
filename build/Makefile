@@ -123,6 +123,60 @@ viewbox/fast:
 	$(MAKE) -f CMakeFiles/viewbox.dir/build.make CMakeFiles/viewbox.dir/build
 .PHONY : viewbox/fast
 
+camera_handler.o: camera_handler.cpp.o
+
+.PHONY : camera_handler.o
+
+# target to build an object file
+camera_handler.cpp.o:
+	$(MAKE) -f CMakeFiles/viewbox.dir/build.make CMakeFiles/viewbox.dir/camera_handler.cpp.o
+.PHONY : camera_handler.cpp.o
+
+camera_handler.i: camera_handler.cpp.i
+
+.PHONY : camera_handler.i
+
+# target to preprocess a source file
+camera_handler.cpp.i:
+	$(MAKE) -f CMakeFiles/viewbox.dir/build.make CMakeFiles/viewbox.dir/camera_handler.cpp.i
+.PHONY : camera_handler.cpp.i
+
+camera_handler.s: camera_handler.cpp.s
+
+.PHONY : camera_handler.s
+
+# target to generate assembly for a file
+camera_handler.cpp.s:
+	$(MAKE) -f CMakeFiles/viewbox.dir/build.make CMakeFiles/viewbox.dir/camera_handler.cpp.s
+.PHONY : camera_handler.cpp.s
+
+camera_handler.o: camera_handler.h.o
+
+.PHONY : camera_handler.o
+
+# target to build an object file
+camera_handler.h.o:
+	$(MAKE) -f CMakeFiles/viewbox.dir/build.make CMakeFiles/viewbox.dir/camera_handler.h.o
+.PHONY : camera_handler.h.o
+
+camera_handler.i: camera_handler.h.i
+
+.PHONY : camera_handler.i
+
+# target to preprocess a source file
+camera_handler.h.i:
+	$(MAKE) -f CMakeFiles/viewbox.dir/build.make CMakeFiles/viewbox.dir/camera_handler.h.i
+.PHONY : camera_handler.h.i
+
+camera_handler.s: camera_handler.h.s
+
+.PHONY : camera_handler.s
+
+# target to generate assembly for a file
+camera_handler.h.s:
+	$(MAKE) -f CMakeFiles/viewbox.dir/build.make CMakeFiles/viewbox.dir/camera_handler.h.s
+.PHONY : camera_handler.h.s
+
 drawer.o: drawer.cpp.o
 
 .PHONY : drawer.o
@@ -267,6 +321,12 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... viewbox"
+	@echo "... camera_handler.o"
+	@echo "... camera_handler.i"
+	@echo "... camera_handler.s"
+	@echo "... camera_handler.o"
+	@echo "... camera_handler.i"
+	@echo "... camera_handler.s"
 	@echo "... drawer.o"
 	@echo "... drawer.i"
 	@echo "... drawer.s"
