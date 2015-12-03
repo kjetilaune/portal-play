@@ -29,6 +29,7 @@
 #include "player.h"
 #include "drawer.h"
 #include "camera_handler.h"
+#include "bullet.h"
 
 using namespace cv;
 using namespace std;
@@ -37,6 +38,9 @@ using namespace std;
 int width = 2880;
 int height = 1800;
 int current_quad = 9, current_quad_z;
+
+
+
 const int number_of_quads = 10;
 //const float screen_width_in_cm = 33.2;22.1
 //const float screen_height_in_cm = 21.35;12.8
@@ -44,7 +48,7 @@ const float screen_width_in_cm = 22.1;
 const float screen_height_in_cm = 12.8;
 const float camera_distance_from_center = screen_height_in_cm/2 + 0.5;
 double  x, y, z, 
-        near = 1, far = 100;
+        near = 1, far = 200;
 double l, r, b, t, ratio;
 bool blend_mode = true;
 bool in_bump_mode = false;
@@ -53,7 +57,9 @@ bool first = true;
 bool left_button_pressed = false;
 bool right_button_pressed = false;
 
-
+int last_positions[3][2] = {{0,0},{0,0},{0,0}};
+int position_counter = 0;
+int x_avg = 0, y_avg = 0;
 
 cv::Mat image, gray_image, resized_gray_image, target_texture, flow_image,
   thresholded_flow_image, current_threshold_image;
@@ -62,11 +68,7 @@ float fovx, fovy, focalLength, principalPointX, principalPointY, fx, fy, k1, k2,
 Mat cameraMatrix;
 vector<double> distCoeffs;
 vector<Rect> rect;
-
-float quad_x[number_of_quads];
-float quad_y[number_of_quads];
-float quad_z[number_of_quads];
-
+int quad_x, quad_y, quad_z;
 
 const String frontalface_cascade = "/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml";
 const String texture_path = "/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/hw3/targettexture2.png";
@@ -75,6 +77,7 @@ const int FH = 17; // faceheight
 
 Drawer *drawer;
 CameraHandler *camera_handler;
+Bullet *bullet;
 
 // a useful function for displaying your coordinate system
 void drawAxes(float length)
@@ -102,7 +105,22 @@ void drawAxes(float length)
   glPopAttrib() ;
 }
 
+void calculate_average_face(){
+  last_positions[position_counter][0] = x + screen_width_in_cm/2;
+  last_positions[position_counter][1] = y + screen_height_in_cm/2;
+  x_avg = 0;
+  y_avg = 0;
+  for (int i = 0; i < 3; i++){
+    x_avg += last_positions[i][0];
+    y_avg += last_positions[i][1];
+  }
+  x = (int) x_avg/3 - screen_width_in_cm/2;
+  y = (int) y_avg/3 - screen_height_in_cm/2;
 
+  position_counter++;
+  if (position_counter >=3)
+    position_counter = 0;
+}
 
 void cross_product(Eigen::VectorXd& vec, Eigen::VectorXd a, Eigen::VectorXd b){
   vec(0) = a(1)*b(2) - a(2)*b(1);
@@ -160,7 +178,43 @@ void find_clipping_planes(){
    glTranslatef(-pe(0), -pe(1), -pe(2));
 }
 
+void draw_quad(float x, float y, float z){
+  //Texture set-up
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  
+  glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, target_texture.size().width, target_texture.size().height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)target_texture.ptr());
 
+  glEnable(GL_TEXTURE_2D);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+  glBindTexture(GL_TEXTURE_2D, 3);
+
+
+  glBegin(GL_QUADS); 
+    glTexCoord2f(0.0, 0.0);
+    glVertex3f(x-1.0, y-1.0, z);
+     
+    glTexCoord2f(1.0, 0.0);
+    glVertex3f(x+1.0, y-1.0, z);
+
+    glTexCoord2f(1.0, 1.0);
+    glVertex3f(x+1.0, y+1.0, z);
+
+    glTexCoord2f(0.0, 1.0);
+    glVertex3f(x-1.0, y+1.0, z);
+  glEnd();
+
+  glDisable(GL_TEXTURE_2D);
+  glDisable(GL_BLEND);
+}
+
+double get_random_double(int min, int max){
+  return rand() % (abs(max) + abs(min)) - abs(min);
+}
 
 void display()
 {
@@ -196,14 +250,82 @@ void display()
   //glViewport(0, 0, 2880, 1800);
   glViewport(0, 0, tempimage.size().width, tempimage.size().height);
 
+  //calculate_average_face();
+
   find_clipping_planes();
   
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   
   drawer->draw_view_box(screen_width_in_cm, screen_height_in_cm);
+  glEnable(GL_DEPTH_TEST);
+  
+
+
+  if (bullet != NULL){
+    
+
+
+    bullet->draw();
+
+    if (bullet->x < quad_x + 2 && bullet->x > quad_x - 2 && bullet->y < quad_y + 2 && bullet->y > quad_y - 2 && bullet->z <= quad_z){
+      if (bullet->z < -220){
+        bullet = NULL;
+      }
+
+      bullet = NULL;
+      cout << " HIT " << endl;
+      quad_x = get_random_double(-8, 8);
+      quad_y = get_random_double(-4, 4);
+      quad_z = get_random_double(-20, 0);
+    }
+    
+  }
+  
+  
+
+  glPushAttrib(GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT) ;
+  glDisable(GL_LIGHTING) ;
+
+  //Draw cross hair
+  glPushMatrix();
+    glBegin(GL_LINES);
+        glColor3f(1.0f,0.0f,0.0f);    
+        glVertex3f(x, y-0.75, -60);
+        glVertex3f(x, y-0.25, -60);
+    glEnd();
+    
+  glPopMatrix();
+
+  glPushMatrix();
+    glBegin(GL_LINES);
+        glColor3f(1.0f,0.0f,0.0f);    
+        glVertex3f(x, y+0.75, -60);
+        glVertex3f(x, y+0.25, -60);
+    glEnd();
+    
+  glPopMatrix();
+
+  glPushMatrix();
+    glBegin(GL_LINES);
+        glColor3f(1.0f,0.0f,0.0f);    
+        glVertex3f(x-0.75, y, -60);
+        glVertex3f(x-0.25, y, -60);
+    glEnd();
+    
+  glPopMatrix();
+
+  glPushMatrix();
+    glBegin(GL_LINES);
+        glColor3f(1.0f,0.0f,0.0f);    
+        glVertex3f(x+0.75, y, -60);
+        glVertex3f(x+0.25, y, -60);
+    glEnd();
+    glDisable(GL_DEPTH_TEST);
+  glPopMatrix();
   //drawViewBox(screen_width_in_cm, screen_height_in_cm);
   //draw_random_quads();
+  draw_quad(quad_x, quad_y, quad_z);
 
   glDisable(GL_LIGHTING);
   glDisable(GL_LIGHT0 );
@@ -232,7 +354,7 @@ void mouse( int button, int state, int x, int y )
     }
 }
 
-void keyboard( unsigned char key, int x, int y )
+void keyboard( unsigned char key, int xxx, int yyy )
 {
   switch ( key )
     {
@@ -244,7 +366,11 @@ void keyboard( unsigned char key, int x, int y )
     case 'c':
       blend_mode = !blend_mode;
       break;
-
+    case 'f':
+    if (bullet == NULL)
+      cout << "X: main: " << x << endl;
+        bullet = new Bullet(x, y, z);
+      break;
     default:
       break;
     }
@@ -326,8 +452,13 @@ void idle()
     x = -screen_width_in_cm/2 + 0.1;
   if (x > screen_width_in_cm/2)
     x = screen_width_in_cm/2 - 0.1;
-  cout << -screen_width_in_cm/2;
-  cout << x << endl;
+
+  if (y < -screen_height_in_cm/2)
+    y = -screen_height_in_cm/2 + 0.1;
+  if (y > screen_height_in_cm/2)
+    y = screen_height_in_cm/2 - 0.1;
+
+  //cout << "X: " << x << endl;
 }
 
 void populateParameterList(char* s, std::vector<float>& list){
@@ -371,8 +502,12 @@ int main( int argc, char **argv )
 
   drawer = new Drawer("/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/hw3/stadium2.jpg");
 
-  //camera_handler = new CameraHandler();
+  target_texture = imread(texture_path, CV_LOAD_IMAGE_UNCHANGED);
 
+
+  quad_x = get_random_double(-8, 8);
+  quad_y = get_random_double(-4, 4);
+  quad_z = get_random_double(-100, 0);
   //Generate random positions
   //populate_quad_position_lists();
 
@@ -401,6 +536,7 @@ int main( int argc, char **argv )
   // get width and height
   w = camera_handler->get_width();
   h = camera_handler->get_height();
+  cout << w << " " << h << endl;
   // On Linux, there is currently a bug in OpenCV that returns 
   // zero for both width and height here (at least for video from file)
   // hence the following override to global variable defaults: 

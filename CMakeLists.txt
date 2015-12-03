@@ -6,7 +6,7 @@ message(status "----${OpenCV_INCLUDE_DIRS}")
 
 FIND_PACKAGE( OpenGL REQUIRED )
 FIND_PACKAGE( GLUT REQUIRED )
-SET(MySources main.cpp player.cpp player.h drawer.cpp drawer.h camera_handler.cpp camera_handler.h)
+SET(MySources main.cpp player.cpp player.h drawer.cpp drawer.h camera_handler.cpp camera_handler.h bullet.cpp bullet.h)
 ADD_EXECUTABLE( viewbox ${MySources} )
 TARGET_LINK_LIBRARIES( viewbox ${OpenCV_LIBS} ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} )
 SET_SOURCE_FILES_PROPERTIES(${MySources} PROPERTIES LANGUAGE CXX ) 

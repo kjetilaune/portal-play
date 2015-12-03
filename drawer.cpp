@@ -78,6 +78,8 @@ void Drawer::draw_view_box(int width, int height){
 	    glEnd();
 	  }
   glEnable(GL_LIGHTING);
+
+  
 }
 
 void Drawer::draw_quad(double x, double y, double z){
