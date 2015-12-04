@@ -42,6 +42,8 @@ int current_quad = 9, current_quad_z;
 
 int rotcnt = 0;
 
+int bird_degrees = 0;
+
 const int number_of_quads = 10;
 //const float screen_width_in_cm = 33.2;22.1
 //const float screen_height_in_cm = 21.35;12.8
@@ -74,12 +76,17 @@ int quad_x, quad_y, quad_z;
 const String frontalface_cascade = "/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml";
 const String texture_path = "/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/hw3/targettexture2.png";
 CascadeClassifier frontalface_cascade_classifier;
-const int FH = 17; // faceheight
+const int FH = 19; // faceheight
 
 Drawer *drawer;
 CameraHandler *camera_handler;
 Bullet *bullet;
 Bird *bird;
+Bird *bird1, *bird2, *bird3;
+
+bool hit_animation = false;
+
+time_t first_time, second_time;
 
 // a useful function for displaying your coordinate system
 void drawAxes(float length)
@@ -218,6 +225,72 @@ double get_random_double(int min, int max){
   return rand() % (abs(max) + abs(min)) - abs(min);
 }
 
+void display_hit_animation(Mat &image){
+  second_time = time(NULL);
+    
+  if (difftime(second_time, first_time) > 3){
+    hit_animation = true;
+  }
+
+  glDrawPixels( image.size().width, image.size().height, GL_BGR, GL_UNSIGNED_BYTE, image.ptr() );
+  glViewport(0, 0, image.size().width, image.size().height);
+  
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  
+  gluPerspective(fovy, image.size().width*1.0/image.size().height, 1, 500); 
+
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  gluLookAt(0, 0, 5, 0, 0, 0, 0, 1, 0);
+
+  bird_degrees += 5;
+  if (bird_degrees >= 360)
+    bird_degrees = 0;
+
+  glEnable( GL_DEPTH_TEST );
+  glPushMatrix();
+    glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_TRUE);
+    glTranslatef(0, 0, -z);
+    glRectd(x - FH*0.8/2, y - FH/2.0, x + FH*0.8/2, y + FH/2.0);
+  glPopMatrix();
+    
+  glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+
+  glPushMatrix();
+    glLoadIdentity();
+    glTranslatef(x, y, -z);
+    glTranslatef(0,0,-20);
+    glRotatef(bird_degrees, 0,1,0);
+    glTranslatef(0,0,20);
+    bird1->draw(0,0,0,0);
+    //glDisable( GL_DEPTH_TEST );
+  glPopMatrix();
+
+  glPushMatrix();
+    glLoadIdentity();
+    glTranslatef(x, y, -z);
+    glTranslatef(0,0,-20);
+    glRotatef(bird_degrees + 120, 0,1,0);
+    glTranslatef(0,0,20);
+    bird2->draw(0,0,0,0);
+    //glDisable( GL_DEPTH_TEST );
+  glPopMatrix();
+
+    glPushMatrix();
+    glLoadIdentity();
+    glTranslatef(x, y, -z);
+    glTranslatef(0,0,-20);
+    glRotatef(bird_degrees + 240, 0,1,0);
+    glTranslatef(0,0,20);
+    bird3->draw(0,0,0,0);
+    glDisable( GL_DEPTH_TEST );
+  glPopMatrix();
+
+
+
+}
+
 void display()
 {
   // clear the window
@@ -237,106 +310,120 @@ void display()
   cv::flip(image, tempimage, -1);
   double windowWidth = glutGet(GLUT_SCREEN_WIDTH);
   double windowHeight = glutGet(GLUT_SCREEN_HEIGHT);
-  if (!blend_mode){
-    if (!tempimage.empty())
-      resize(tempimage, temp2, Size(320, 240));
-
-    glDrawPixels( temp2.size().width, temp2.size().height, GL_BGR, GL_UNSIGNED_BYTE, temp2.ptr() );
-  }
-  else{
-    glDrawPixels( tempimage.size().width, tempimage.size().height, GL_BGR, GL_UNSIGNED_BYTE, tempimage.ptr() );
-  }
-  //////////////////////////////////////////////////////////////////////////////////
-  // Here, set up new parameters to render a scene viewed from the camera.
-
-  //glViewport(0, 0, 2880, 1800);
-  glViewport(0, 0, tempimage.size().width, tempimage.size().height);
-
+  
   //calculate_average_face();
 
-  find_clipping_planes();
-  
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-  
-  drawer->draw_view_box(screen_width_in_cm, screen_height_in_cm);
-  glEnable(GL_DEPTH_TEST);
-  
-  rotcnt++;
-  glPushAttrib(GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT) ;
-  glDisable(GL_LIGHTING) ;
-  bird->draw(0,0,0, rotcnt%360);
-
-  if (bullet != NULL){
-    
-
-
-    bullet->draw();
-
-    if (bullet->x < quad_x + 2 && bullet->x > quad_x - 2 && bullet->y < quad_y + 2 && bullet->y > quad_y - 2 && bullet->z <= quad_z){
-      if (bullet->z < -220){
-        bullet = NULL;
-      }
-
-      bullet = NULL;
-      cout << " HIT " << endl;
-      quad_x = get_random_double(-8, 8);
-      quad_y = get_random_double(-4, 4);
-      quad_z = get_random_double(-20, 0);
-    }
+  if (hit_animation){
+    display_hit_animation(tempimage);
     
   }
-  
-  
 
-  glPushAttrib(GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT) ;
-  glDisable(GL_LIGHTING) ;
+  else{
 
-  //Draw cross hair
-  glPushMatrix();
-    glBegin(GL_LINES);
-        glColor3f(1.0f,0.0f,0.0f);    
-        glVertex3f(x, y-0.75, -60);
-        glVertex3f(x, y-0.25, -60);
-    glEnd();
+    if (!blend_mode){
+      if (!tempimage.empty())
+        resize(tempimage, temp2, Size(320, 240));
+
+      glDrawPixels( temp2.size().width, temp2.size().height, GL_BGR, GL_UNSIGNED_BYTE, temp2.ptr() );
+    }
+    else{
+      glDrawPixels( tempimage.size().width, tempimage.size().height, GL_BGR, GL_UNSIGNED_BYTE, tempimage.ptr() );
+    }
+    //////////////////////////////////////////////////////////////////////////////////
+    // Here, set up new parameters to render a scene viewed from the camera.
+
+    //glViewport(0, 0, 2880, 1800);
+    glViewport(0, 0, tempimage.size().width, tempimage.size().height);
+
+
+    find_clipping_planes();
     
-  glPopMatrix();
-
-  glPushMatrix();
-    glBegin(GL_LINES);
-        glColor3f(1.0f,0.0f,0.0f);    
-        glVertex3f(x, y+0.75, -60);
-        glVertex3f(x, y+0.25, -60);
-    glEnd();
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
     
-  glPopMatrix();
-
-  glPushMatrix();
-    glBegin(GL_LINES);
-        glColor3f(1.0f,0.0f,0.0f);    
-        glVertex3f(x-0.75, y, -60);
-        glVertex3f(x-0.25, y, -60);
-    glEnd();
+    drawer->draw_view_box(screen_width_in_cm, screen_height_in_cm);
+    glEnable(GL_DEPTH_TEST);
     
-  glPopMatrix();
+    rotcnt++;
+    
+    glPushAttrib(GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT) ;
+    glDisable(GL_LIGHTING) ;
 
-  glPushMatrix();
-    glBegin(GL_LINES);
-        glColor3f(1.0f,0.0f,0.0f);    
-        glVertex3f(x+0.75, y, -60);
-        glVertex3f(x+0.25, y, -60);
-    glEnd();
-    glDisable(GL_DEPTH_TEST);
-  glPopMatrix();
-  //drawViewBox(screen_width_in_cm, screen_height_in_cm);
-  //draw_random_quads();
-  draw_quad(quad_x, quad_y, quad_z);
 
-  glDisable(GL_LIGHTING);
-  glDisable(GL_LIGHT0 );
-  glDisable(GL_COLOR_MATERIAL);
-  glDisable(GL_BACK);
- 
+    bird->draw(0,0,0, rotcnt%360);
+
+    if (bullet != NULL){
+      
+
+
+      bullet->draw();
+
+      if (bullet->x < quad_x + 1 && bullet->x > quad_x - 1 && bullet->y < quad_y + 1 && bullet->y > quad_y - 1 && bullet->z <= quad_z){
+        if (bullet->z < -220){
+          bullet = NULL;
+        }
+        first_time = time(NULL);
+        hit_animation = true;
+
+        bullet = NULL;
+        cout << " HIT " << endl;
+        quad_x = get_random_double(-8, 8);
+        quad_y = get_random_double(-4, 4);
+        quad_z = get_random_double(-20, 0);
+      }
+      
+    }
+    
+    
+
+    glPushAttrib(GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT) ;
+    glDisable(GL_LIGHTING) ;
+
+    //Draw cross hair
+    glPushMatrix();
+      glBegin(GL_LINES);
+          glColor3f(1.0f,0.0f,0.0f);    
+          glVertex3f(x, y-0.75, -60);
+          glVertex3f(x, y-0.25, -60);
+      glEnd();
+      
+    glPopMatrix();
+
+    glPushMatrix();
+      glBegin(GL_LINES);
+          glColor3f(1.0f,0.0f,0.0f);    
+          glVertex3f(x, y+0.75, -60);
+          glVertex3f(x, y+0.25, -60);
+      glEnd();
+      
+    glPopMatrix();
+
+    glPushMatrix();
+      glBegin(GL_LINES);
+          glColor3f(1.0f,0.0f,0.0f);    
+          glVertex3f(x-0.75, y, -60);
+          glVertex3f(x-0.25, y, -60);
+      glEnd();
+      
+    glPopMatrix();
+
+    glPushMatrix();
+      glBegin(GL_LINES);
+          glColor3f(1.0f,0.0f,0.0f);    
+          glVertex3f(x+0.75, y, -60);
+          glVertex3f(x+0.25, y, -60);
+      glEnd();
+      glDisable(GL_DEPTH_TEST);
+    glPopMatrix();
+    //drawViewBox(screen_width_in_cm, screen_height_in_cm);
+    //draw_random_quads();
+    draw_quad(quad_x, quad_y, quad_z);
+
+    glDisable(GL_LIGHTING);
+    glDisable(GL_LIGHT0 );
+    glDisable(GL_COLOR_MATERIAL);
+    glDisable(GL_BACK);
+ }
 
   // show the rendering on the screen
   glutSwapBuffers();
@@ -508,6 +595,10 @@ int main( int argc, char **argv )
   drawer = new Drawer("/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/hw3/stadium2.jpg");
 
   bird = new Bird();
+
+  bird1 = new Bird();
+  bird2 = new Bird();
+  bird3 = new Bird();
 
   target_texture = imread(texture_path, CV_LOAD_IMAGE_UNCHANGED);
 

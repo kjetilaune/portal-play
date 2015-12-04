@@ -208,8 +208,8 @@ void draw_wings(float wing_tip_height){
 
 void Bird::draw(int x, int y, int z, int rot){
 	glPushMatrix();
-	glTranslatef(0,0,-20);
-	glRotatef(rot, 0, 1, 0);
+	//glTranslatef(0,0,-20);
+	//glRotatef(rot, 0, 1, 0);
 	draw_wings(0);
 	draw_body();
 	draw_tail();
