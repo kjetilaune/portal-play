@@ -229,7 +229,7 @@ void display_hit_animation(Mat &image){
   second_time = time(NULL);
     
   if (difftime(second_time, first_time) > 3){
-    hit_animation = true;
+    hit_animation = false;
   }
 
   glDrawPixels( image.size().width, image.size().height, GL_BGR, GL_UNSIGNED_BYTE, image.ptr() );
@@ -344,13 +344,13 @@ void display()
     drawer->draw_view_box(screen_width_in_cm, screen_height_in_cm);
     glEnable(GL_DEPTH_TEST);
     
-    rotcnt++;
+    rotcnt+= 10;
     
     glPushAttrib(GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT) ;
     glDisable(GL_LIGHTING) ;
 
 
-    bird->draw(0,0,0, rotcnt%360);
+    //bird->draw(0,0,0, rotcnt%360);
 
     if (bullet != NULL){
       
