@@ -1,3 +1,6 @@
+#ifndef CAMERAHANDLER_H_
+#define CAMERAHANDLER_H_
+
 #include <opencv2/opencv.hpp>
 #include <opencv/highgui.h>
 #include <stdlib.h>
@@ -25,3 +28,5 @@ public:
 
 
 };
+
+#endif //CAMERAHANDLER_H_

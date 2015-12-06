@@ -1,10 +1,13 @@
 #include "player.h"
 
+
+using namespace std;
+
 Player::Player(){
 	lives = 3;
 }
 
-Player::Player(string name){
+Player::Player(std::string name){
 	this->name = name;
 }
 

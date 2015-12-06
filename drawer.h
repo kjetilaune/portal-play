@@ -1,9 +1,10 @@
+#ifndef DRAWER_H_
+#define DRAWER_H_
+
 #include <iostream>
 
-using namespace std;
 
 class Drawer{
-	
 
 public:
 	Drawer(char*);
@@ -13,3 +14,5 @@ public:
 	void draw_quad(double, double, double);
 	void draw_view_box(int, int);
 };
+
+#endif //DRAWER_H_

@@ -1,17 +1,20 @@
+#ifndef PLAYER_H_
+#define PLAYER_H_
+
 #include <iostream>
 
-using namespace std;
 
 class Player{
-	string name;
+  std::string name;
 	int lives;
-	//vector<Weapon> weapons;
 
 public:
 	Player();
-	Player(string);
-	string get_name(){return name;}
+	Player(std::string name);
+  std::string get_name(){return name;}
 	int decrease_lives();
 	int increase_lives();
 		
 };
+
+#endif //PLAYER_H_

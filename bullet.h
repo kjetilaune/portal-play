@@ -1,8 +1,7 @@
-
+#ifndef BULLET_H_
+#define BULLET_H_
 
 class Bullet{
-
-	
 
 public:
 	float x, y, z;
@@ -13,3 +12,5 @@ public:
 
 
 };
+
+#endif //BULLET_H_
