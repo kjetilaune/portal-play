@@ -32,6 +32,8 @@
 #include "bullet.h"
 #include "bird.h"
 
+#include <tgmath.h>
+
 using namespace cv;
 using namespace std;
 
@@ -65,7 +67,7 @@ int position_counter = 0;
 int x_avg = 0, y_avg = 0;
 
 cv::Mat image, gray_image, resized_gray_image, target_texture, flow_image,
-  thresholded_flow_image, current_threshold_image;
+  thresholded_flow_image, current_threshold_image, opponent;
 //Intrinsic camera parameters
 float fovx, fovy, focalLength, principalPointX, principalPointY, fx, fy, k1, k2, p1, p2;
 Mat cameraMatrix;
@@ -193,7 +195,8 @@ void draw_quad(float x, float y, float z){
   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  
+  Mat temp_opponent;
+  //copyMakeBorder(opponent)
   glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, target_texture.size().width, target_texture.size().height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)target_texture.ptr());
 
   glEnable(GL_TEXTURE_2D);
@@ -202,10 +205,11 @@ void draw_quad(float x, float y, float z){
   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
   glBindTexture(GL_TEXTURE_2D, 3);
 
+  cout << (int)(log2(image.size().width) + 1) << " " << image.size().width << endl;
 
   glBegin(GL_QUADS); 
     glTexCoord2f(0.0, 0.0);
-    glVertex3f(x-1.0, y-1.0, z);
+    glVertex3f(x-2.0, y-1.0, z);
      
     glTexCoord2f(1.0, 0.0);
     glVertex3f(x+1.0, y-1.0, z);
@@ -214,7 +218,7 @@ void draw_quad(float x, float y, float z){
     glVertex3f(x+1.0, y+1.0, z);
 
     glTexCoord2f(0.0, 1.0);
-    glVertex3f(x-1.0, y+1.0, z);
+    glVertex3f(x-2.0, y+1.0, z);
   glEnd();
 
   glDisable(GL_TEXTURE_2D);
@@ -315,7 +319,6 @@ void display()
 
   if (hit_animation){
     display_hit_animation(tempimage);
-    
   }
 
   else{
@@ -327,7 +330,9 @@ void display()
       glDrawPixels( temp2.size().width, temp2.size().height, GL_BGR, GL_UNSIGNED_BYTE, temp2.ptr() );
     }
     else{
-      glDrawPixels( tempimage.size().width, tempimage.size().height, GL_BGR, GL_UNSIGNED_BYTE, tempimage.ptr() );
+      Mat opponent2;
+      flip(opponent, opponent2, -1);
+      glDrawPixels( opponent2.size().width, opponent2.size().height, GL_BGR, GL_UNSIGNED_BYTE, opponent2.ptr() );
     }
     //////////////////////////////////////////////////////////////////////////////////
     // Here, set up new parameters to render a scene viewed from the camera.
@@ -349,7 +354,7 @@ void display()
     glPushAttrib(GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT) ;
     glDisable(GL_LIGHTING) ;
 
-
+    //glRotatef(rotcnt, 0, 1, 0);
     //bird->draw(0,0,0, rotcnt%360);
 
     if (bullet != NULL){
@@ -484,7 +489,11 @@ void idle()
   Mat prev, prev_gray;
   // grab a frame from the camera
   image = camera_handler->get_image_from_camera();
-  
+  opponent = camera_handler->get_image_from_opponent();
+
+  //namedWindow( "DisplayWindow", WINDOW_AUTOSIZE );
+  //imshow("DisplayWindow", opponent);
+
   double aspect_ratio = image.size().width*1.0 / image.size().height;
   Size s(320, int(320.0/aspect_ratio));
 
@@ -492,8 +501,7 @@ void idle()
     first = false;
     cvtColor(image, gray_image, CV_RGB2GRAY);
     resize(gray_image, resized_gray_image, s);
-    
-  }
+  } 
   else {
     prev_gray = resized_gray_image.clone();
 
@@ -625,6 +633,12 @@ int main( int argc, char **argv )
     populateParameterList(paramsPath, paramList);
     assignParameterVariables(paramList);
     camera_handler = new CameraHandler();
+  } else if (argc == 3){
+    char* paramsPath(argv[1]);
+    std::vector<float> paramList;
+    populateParameterList(paramsPath, paramList);
+    assignParameterVariables(paramList);
+    camera_handler = new CameraHandler(argv[2]);
   } else {
     fprintf( stderr, "usage: %s [<filename>]\n", argv[0] );
     return 1;
