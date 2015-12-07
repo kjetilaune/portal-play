@@ -81,7 +81,7 @@ vector<Rect> rect;
 int quad_x, quad_y, quad_z;
 
 const String frontalface_cascade = "/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml";
-const String texture_path = "/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/media/heart.png";
+const String texture_path = "../media/heart.png";
 CascadeClassifier frontalface_cascade_classifier;
 const int FH = 19; // faceheight
 
