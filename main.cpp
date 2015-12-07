@@ -211,6 +211,8 @@ void draw_quad(float x, float y, float z){
   int ypaddingexp = (int)(log2(opponent.size().height) + 1);
   Mat opponentRGBAFlipped;
   flip(opponentRGBA, opponentRGBAFlipped, -1);
+
+  //Fill the Mat with transparent pixels where padded
   copyMakeBorder(opponentRGBAFlipped, temp_opponent,(pow(2,ypaddingexp)-opponent.size().height)/2,(pow(2,ypaddingexp)-opponent.size().height)/2, (pow(2,xpaddingexp)-opponent.size().width)/2, (pow(2,xpaddingexp)-opponent.size().width)/2,BORDER_CONSTANT, Scalar(0,0,0,0));
 
   //glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, target_texture.size().width, target_texture.size().height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)target_texture.ptr());

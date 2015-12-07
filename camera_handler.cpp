@@ -31,7 +31,7 @@ Mat CameraHandler::get_image_from_camera(){
 Mat CameraHandler::get_image_from_opponent(){
 	Mat image;
 	
-	if (framecounter >= number_of_frames){
+	if (framecounter >= number_of_frames-1){
 		delete opponent_capture;
 		opponent_capture = new VideoCapture(this->video_path);
 		framecounter = -1;
