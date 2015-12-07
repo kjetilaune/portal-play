@@ -32,6 +32,48 @@ Drawer::Drawer(char* texture_path){
 	glBindTexture(GL_TEXTURE_2D, texture);*/
 }
 
+void Drawer::draw_cross_hair(float x, float y, float z){
+	glPushAttrib(GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT) ;
+    glDisable(GL_LIGHTING) ;
+
+    //Draw cross hair
+    glPushMatrix();
+      glBegin(GL_LINES);
+          glColor3f(1.0f,0.0f,0.0f);    
+          glVertex3f(x, y-0.75, -60);
+          glVertex3f(x, y-0.25, -60);
+      glEnd();
+      
+    glPopMatrix();
+
+    glPushMatrix();
+      glBegin(GL_LINES);
+          glColor3f(1.0f,0.0f,0.0f);    
+          glVertex3f(x, y+0.75, -60);
+          glVertex3f(x, y+0.25, -60);
+      glEnd();
+      
+    glPopMatrix();
+
+    glPushMatrix();
+      glBegin(GL_LINES);
+          glColor3f(1.0f,0.0f,0.0f);    
+          glVertex3f(x-0.75, y, -60);
+          glVertex3f(x-0.25, y, -60);
+      glEnd();
+      
+    glPopMatrix();
+
+    glPushMatrix();
+      glBegin(GL_LINES);
+          glColor3f(1.0f,0.0f,0.0f);    
+          glVertex3f(x+0.75, y, -60);
+          glVertex3f(x+0.25, y, -60);
+      glEnd();
+      glDisable(GL_DEPTH_TEST);
+    glPopMatrix();
+}
+
 void Drawer::draw_view_box(int width, int height){
 
 	glDisable(GL_LIGHTING) ;
