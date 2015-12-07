@@ -2,6 +2,7 @@
 #define NETWORKSENDER_H_
 
 #include "ISenderCallback.h"
+#include "Protocol.h"
 
 #include <memory>
 #include <string>
@@ -25,6 +26,7 @@ public:
 
 public:
   void Send(cv::Mat img);
+  void Send(cv::Mat img, Message msg);
 
 private:
   int _heigth;

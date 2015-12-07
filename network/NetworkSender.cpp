@@ -1,5 +1,4 @@
 #include "NetworkSender.h"
-#include "Protocol.h"
 #include "Util.h"
 
 #include <sys/socket.h>
@@ -36,9 +35,16 @@ NetworkSender::NetworkSender(int heigth,
 //-------------------------------------------------------------------------
 void NetworkSender::Send(cv::Mat img) {
 
+  Message msg;
+
+  Send(img, msg);
+}
+
+//-------------------------------------------------------------------------
+void NetworkSender::Send(cv::Mat img, Message msg) {
+
   cv::Mat img0;
   cv::Mat img1;
-  Message msg;
 
   // Resize
   cv::resize(img, img, cv::Size(_heigth, _width));
