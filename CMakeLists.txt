@@ -9,6 +9,8 @@ SET(MySources
   main.cpp 
   player.cpp 
   player.h 
+  RemotePlayer.cpp
+  LocalPlayer.cpp
   drawer.cpp 
   drawer.h 
   camera_handler.cpp 
