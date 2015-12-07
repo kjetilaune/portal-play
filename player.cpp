@@ -3,22 +3,21 @@
 
 using namespace std;
 
-Player::Player(){
-	lives = 3;
-}
-
-Player::Player(std::string name){
-	this->name = name;
+Player::Player(std::string name)
+  : _name(name) {
+  
+  _lives = 3;
 }
 
 int Player::decrease_lives(){
-	if (lives == 0)
+	if (_lives == 0)
 		return -1;
-	lives--;
-	return lives;
+	_lives--;
+
+	return _lives;
 }
 
 int Player::increase_lives(){
-	lives++;
-	return lives;
+	_lives++;
+	return _lives;
 }
