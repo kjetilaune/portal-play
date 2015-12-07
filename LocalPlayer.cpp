@@ -1,12 +1,8 @@
 #include "LocalPlayer.h"
 
-/*struct _FaceData {
-  cv::Point3f center;
-  cv::Point2f topleft;
-  cv::Point2f topright;
-  cv::Point2f downright;
-  cv::Point2f downleft;
-};*/
+
+const int FH = 19;
+
 //-------------------------------------------------------------------------
 LocalPlayer::LocalPlayer(std::string name, IntrinsicCameraParameters param, float width_in_cm, float height_in_cm)
   : Player(name) {
@@ -101,5 +97,13 @@ void LocalPlayer::update(){
 
 void LocalPlayer::OnSentCompleted(bool sendResult) {
 
-  _sender->Send(this->_currentImg);
+  // Build Message.
+  Message msg;
+  msg.center = _faceData.center;
+  msg.topleft = _faceData.topleft;
+  msg.topright = _faceData.topright;
+  msg.downleft = _faceData.downleft;
+  msg.downright = _faceData.downright;
+
+  _sender->Send(this->_currentImg, msg);
 }
