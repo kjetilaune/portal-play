@@ -9,8 +9,6 @@ CameraHandler::CameraHandler(){
 
 	if (cap == NULL || !cap->isOpened())
 		exit(EXIT_FAILURE);
-
-  // Init Sender
 }
 
 CameraHandler::CameraHandler(string video_path){
