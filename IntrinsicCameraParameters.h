@@ -12,5 +12,5 @@ struct _IntrinsicCameraParameters {
   float p1;
   float p2;
   cv::Mat cameraMatrix;
-  vector<double> distCoeffs;
+  std::vector<double> distCoeffs;
 };

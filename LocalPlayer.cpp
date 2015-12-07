@@ -29,11 +29,12 @@ float LocalPlayer::pixel_to_cm(int x, int rec_width){
 }
 
 void LocalPlayer::find_face(){
-  vector<cv::Rect> rect;
-  cv::Mat gray_image;
+  std::vector<cv::Rect> rect;
+  cv::Mat gray_image, gray_image_downsized;
   cv::cvtColor(_currentImg, gray_image, CV_RGB2GRAY);
+  cv::resize(gray_image, gray_image_downsized, cv::Size(300, 300*gray_image.size().height/gray_image.size().width));
 
-  frontalface_cascade_classifier.detectMultiScale(gray_image, rect, 1.1, 2, CV_HAAR_SCALE_IMAGE|CV_HAAR_FIND_BIGGEST_OBJECT, cv::Size(100,100));
+  frontalface_cascade_classifier.detectMultiScale(gray_image_downsized, rect, 1.1, 2, CV_HAAR_SCALE_IMAGE|CV_HAAR_FIND_BIGGEST_OBJECT, cv::Size(25,25));
 
   //Find largest face
   cv::Scalar color(0,255,255);
@@ -44,9 +45,13 @@ void LocalPlayer::find_face(){
     if (rect[i].width > max_rect.width)
       max_rect = rect[i];
   }
+  max_rect.x = max_rect.x*gray_image.size().width/300;
+  max_rect.y = max_rect.y*gray_image.size().height/(300*gray_image.size().height/gray_image.size().width);
+  max_rect.width = max_rect.width*gray_image.size().width/300;
+  max_rect.height = max_rect.height*gray_image.size().height/(300*gray_image.size().height/gray_image.size().width);
   if (true)
     //box is 0.8*height
-    rectangle(_currentImg, Point(max_rect.x + 0.1*max_rect.width, max_rect.y), Point(max_rect.x + 0.9*max_rect.width, max_rect.y + max_rect.height), color, 1);  
+    rectangle(_currentImg, cv::Point(max_rect.x + 0.1*max_rect.width, max_rect.y), cv::Point(max_rect.x + 0.9*max_rect.width, max_rect.y + max_rect.height), color, 1);  
 
   float x, y, z;
 

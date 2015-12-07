@@ -53,8 +53,7 @@ const int number_of_quads = 10;
 const float screen_width_in_cm = 22.1;
 const float screen_height_in_cm = 12.8;
 const float camera_distance_from_center = screen_height_in_cm/2 + 0.5;
-double  x, y, z, 
-        near = 1, far = 200;
+double  near = 1, far = 200;
 double l, r, b, t, ratio;
 bool blend_mode = true;
 bool in_bump_mode = false;
@@ -69,12 +68,10 @@ int x_avg = 0, y_avg = 0;
 
 cv::Mat image, gray_image, resized_gray_image, target_texture, flow_image,
   thresholded_flow_image, current_threshold_image, opponent;
-//Intrinsic camera parameters
-//float fovx, fovy, focalLength, principalPointX, principalPointY, fx, fy, k1, k2, p1, p2;
-Mat cameraMatrix;
-vector<double> distCoeffs;
 
 LocalPlayer *local_player;
+const int IS_BGR = 0;
+const int IS_BGRA = 1;
 
 
 
@@ -84,7 +81,7 @@ vector<Rect> rect;
 int quad_x, quad_y, quad_z;
 
 const String frontalface_cascade = "/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml";
-const String texture_path = "/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/hw3/targettexture2.png";
+const String texture_path = "/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/portal-play/media/heart.png";
 CascadeClassifier frontalface_cascade_classifier;
 const int FH = 19; // faceheight
 
@@ -181,7 +178,7 @@ void find_clipping_planes(float x, float y, float z){
    glTranslatef(-pe(0), -pe(1), -pe(2));
 }
 
-void draw_opponent(float x, float y, float z){
+void draw_opponent(Mat &opponent, float x, float y, float z, int code, int screen_width_in_cm, int screen_height_in_cm){
   //Texture set-up
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -194,13 +191,21 @@ void draw_opponent(float x, float y, float z){
 
   
   Mat opponentRGBA(opponent.size(), CV_8UC4, image_data);
-  cvtColor(opponent, opponentRGBA, CV_BGR2RGBA, 4);
+  if (code == IS_BGR)
+    cvtColor(opponent, opponentRGBA, CV_BGR2RGBA, 4);
+  else if (code == IS_BGRA)
+    cvtColor(opponent, opponentRGBA, CV_BGRA2RGBA, 4);
 
 
   int xpaddingexp = (int)(log2(opponent.size().width) + 1);
   int ypaddingexp = (int)(log2(opponent.size().height) + 1);
   Mat opponentRGBAFlipped;
   flip(opponentRGBA, opponentRGBAFlipped, -1);
+
+  if (xpaddingexp == 7){
+    xpaddingexp = 6;
+    ypaddingexp = 6;
+  }
 
   //Fill the Mat with transparent pixels where padded
   copyMakeBorder(opponentRGBAFlipped, temp_opponent,(pow(2,ypaddingexp)-opponent.size().height)/2,(pow(2,ypaddingexp)-opponent.size().height)/2, (pow(2,xpaddingexp)-opponent.size().width)/2, (pow(2,xpaddingexp)-opponent.size().width)/2,BORDER_CONSTANT, Scalar(0,0,0,0));
@@ -219,7 +224,7 @@ void draw_opponent(float x, float y, float z){
   //Using the ratio between pixels and cm for both padded and unpadded images
   float quad_w = (pow(2, xpaddingexp) * screen_width_in_cm)/(opponent.size().width*2);
   float quad_h = (pow(2, ypaddingexp) * screen_height_in_cm)/(opponent.size().height*2);
-
+  cout << xpaddingexp << endl;
   glBegin(GL_QUADS); 
     glTexCoord2f(0.0, 0.0);
     glVertex3f(x-quad_w, y-quad_h, z);
@@ -389,7 +394,8 @@ void display()
       
     }
     if (!first)
-      draw_opponent(0, 0, -180);
+      draw_opponent(opponent, 0, 0, -180, IS_BGR, screen_width_in_cm, screen_height_in_cm);
+    draw_opponent(target_texture, 0, 0, -150, IS_BGRA, FH, FH);
     
     //drawViewBox(screen_width_in_cm, screen_height_in_cm);
     //draw_random_quads();
@@ -437,8 +443,7 @@ void keyboard( unsigned char key, int xxx, int yyy )
       break;
     case 'f':
     if (bullet == NULL)
-      cout << "X: main: " << x << endl;
-        bullet = new Bullet(x, y, z);
+        bullet = new Bullet(local_player->getFaceData().center.x, local_player->getFaceData().center.y, local_player->getFaceData().center.z);
       break;
     default:
       break;
@@ -491,9 +496,7 @@ void idle()
   }
 */
   first = false;
-  x = local_player->getFaceData().center.x;
-  y = local_player->getFaceData().center.y;
-  z = local_player->getFaceData().center.z;
+
 }
 
 void populateParameterList(char* s, std::vector<float>& list){
@@ -555,7 +558,7 @@ int main( int argc, char **argv )
 
   
   //Load texture
-  //target_texture = imread(texture_path, CV_LOAD_IMAGE_UNCHANGED);
+  target_texture = imread(texture_path, CV_LOAD_IMAGE_UNCHANGED);
     
   if ( argc == 1 ) {
     local_player = new LocalPlayer("Kjetil", intrinsicCameraParameters, screen_width_in_cm, screen_height_in_cm);

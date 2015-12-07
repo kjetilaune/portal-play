@@ -30,7 +30,7 @@ public:
   void update();
 
 private:
-	const String frontalface_cascade = "/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml";
+	const std::string frontalface_cascade = "/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml";
 	cv::CascadeClassifier frontalface_cascade_classifier;
 	CameraHandler *camera_handler = NULL;
 	float screen_width_in_cm;
