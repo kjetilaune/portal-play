@@ -36,7 +36,8 @@ public:
 protected:
   std::string _name;
 	int _lives;
-  Facedata _face_data;
+  FaceData _faceData;
+  cv::Mat _currentImg;
 		
 };
 typedef struct std::shared_ptr<Player> PlayerPtr;
