@@ -3,6 +3,11 @@
 
 const int FH = 19;
 
+const std::string kIpAddress = "127.0.0.1";
+const int kPortNumber = 11224;
+const int kWidth = 320;
+const int kHeight = 240;
+
 //-------------------------------------------------------------------------
 LocalPlayer::LocalPlayer(std::string name, IntrinsicCameraParameters param, float width_in_cm, float height_in_cm)
   : Player(name) {
@@ -13,6 +18,8 @@ LocalPlayer::LocalPlayer(std::string name, IntrinsicCameraParameters param, floa
   frontalface_cascade_classifier.load(frontalface_cascade);
   intrinsicCameraParameters = param;
   
+  // Init NetworkSender.
+  _sender.reset(new NetworkSender(kWidth, kHeight, kPortNumber, kIpAddress, this));
 }
 
 float LocalPlayer::pixel_to_cm(int x, int rec_width){
