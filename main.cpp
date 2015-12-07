@@ -26,7 +26,7 @@
 #include "eigen/Eigen/Dense"
 #include "eigen/Eigen/Geometry"
 
-#include "player.h"
+#include "LocalPlayer.h"
 #include "drawer.h"
 #include "camera_handler.h"
 #include "bullet.h"
@@ -621,7 +621,7 @@ int main( int argc, char **argv )
   //Seed for random generation
   srand (time(NULL));
 
-  Player *p = new Player("Kjetil");
+  Player *p = new LocalPlayer("Kjetil");
   cout << p->get_name() << endl;
 
 
