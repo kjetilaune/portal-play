@@ -16,7 +16,9 @@
  */
 class NetworkSender {
 public:
-  NetworkSender(int serverPort, 
+  NetworkSender(int heigth, 
+                int width, 
+                int serverPort, 
                 std::string serverIp,
                 ISenderCallback* caller);
   virtual ~NetworkSender() {}
@@ -25,6 +27,9 @@ public:
   void Send(cv::Mat img);
 
 private:
+  int _heigth;
+  int _width;
+
   int _socket;
 
   ISenderCallback* _caller;

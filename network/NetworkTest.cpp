@@ -10,7 +10,10 @@
 #include <thread>
 
 
-const int kPortNumber = 22514;
+const std::string kIpAddress = "127.0.0.1";
+const int kPortNumber = 11224;
+const int kWidth = 320;
+const int kHeight = 240;
 
 //-------------------------------------------------------------------------
 class NetworkTest
@@ -27,7 +30,7 @@ public:
     Info("OnReceived()");
 
     // Show image we just received.
-    cv::imshow("stream_client", mat);
+    cv::imshow("NetworkTest", mat);
   }
 
 //ISenderCallback
@@ -44,22 +47,18 @@ public:
 public:
   void StartTest() {
     // Set up network.
-    _receiver.reset(new NetworkReceiver(320, 240, this));
+    _receiver.reset(new NetworkReceiver(kWidth, kHeight, this));
     _receiver->Listen(kPortNumber);
 
-    _sender.reset(new NetworkSender(kPortNumber, "127.0.0.1", this));
+    _sender.reset(new NetworkSender(kWidth, kHeight, kPortNumber, kIpAddress, this));
 
-    // Open Capture.
+    // Capture image and Show it.    
     _capture.open(0);
-    _capture.set(CV_CAP_PROP_FRAME_WIDTH, 320);
-    _capture.set(CV_CAP_PROP_FRAME_HEIGHT, 240);
-
-    // Capture image and Show it.
     cv::Mat image;
     _capture >> image;
 
-    cv::namedWindow("stream_client", CV_WINDOW_AUTOSIZE);     
-    cv::imshow("stream_client", image);    
+    cv::namedWindow("NetworkTest", CV_WINDOW_AUTOSIZE);     
+    cv::imshow("NetworkTest", image);    
 
     // Init transmission storm.
     _sender->Send(image);

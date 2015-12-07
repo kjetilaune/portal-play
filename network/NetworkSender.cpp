@@ -8,10 +8,14 @@
 
 
 //-------------------------------------------------------------------------
-NetworkSender::NetworkSender(int serverPort, 
+NetworkSender::NetworkSender(int heigth, 
+                             int width,
+                             int serverPort, 
                              std::string serverIp,
                              ISenderCallback* caller)
-  : _caller(caller) {
+  : _heigth(heigth),
+    _width(width),
+    _caller(caller) {
 
   struct sockaddr_in serverAddr;
   socklen_t serverAddrLen = sizeof(serverAddr);
@@ -35,6 +39,9 @@ void NetworkSender::Send(cv::Mat img) {
   cv::Mat img0;
   cv::Mat img1;
   Message msg;
+
+  // Resize
+  cv::resize(img, img, cv::Size(_heigth, _width));
 
   // Convert to grayscale
   img0 = cv::Mat::zeros(img.rows, img.cols, CV_8UC1);
