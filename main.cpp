@@ -32,7 +32,7 @@
 #include "bullet.h"
 #include "bird.h"
 
-#include <tgmath.h>
+#include <tgmath.h> //for log2
 
 using namespace cv;
 using namespace std;
@@ -195,9 +195,26 @@ void draw_quad(float x, float y, float z){
   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  Mat temp_opponent;
-  //copyMakeBorder(opponent)
-  glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, target_texture.size().width, target_texture.size().height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)target_texture.ptr());
+
+
+  uchar* image_data = new uchar[opponent.total()*4];
+  Mat temp_rgb, temp_opponent;
+
+  
+  Mat opponentRGBA(opponent.size(), CV_8UC4, image_data);
+  //Mat opponentRGBA(opponent);
+  //cout << opponent << endl;
+  cvtColor(opponent, opponentRGBA, CV_BGR2RGBA, 4);
+
+
+  int xpaddingexp = (int)(log2(opponent.size().width) + 1);
+  int ypaddingexp = (int)(log2(opponent.size().height) + 1);
+  Mat opponentRGBAFlipped;
+  flip(opponentRGBA, opponentRGBAFlipped, -1);
+  copyMakeBorder(opponentRGBAFlipped, temp_opponent,(pow(2,ypaddingexp)-opponent.size().height)/2,(pow(2,ypaddingexp)-opponent.size().height)/2, (pow(2,xpaddingexp)-opponent.size().width)/2, (pow(2,xpaddingexp)-opponent.size().width)/2,BORDER_CONSTANT, Scalar(0,0,0,0));
+
+  //glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, target_texture.size().width, target_texture.size().height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)target_texture.ptr());
+  glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, temp_opponent.size().width, temp_opponent.size().height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)temp_opponent.ptr());
 
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_BLEND);
@@ -205,20 +222,24 @@ void draw_quad(float x, float y, float z){
   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
   glBindTexture(GL_TEXTURE_2D, 3);
 
-  cout << (int)(log2(image.size().width) + 1) << " " << image.size().width << endl;
+  //cout << (int)(log2(image.size().width) + 1) << " " << image.size().width << endl;
+
+  //Using the ratio between pixels and cm for both padded and unpadded images
+  float quad_w = (pow(2, xpaddingexp) * screen_width_in_cm)/(opponent.size().width*2);
+  float quad_h = (pow(2, ypaddingexp) * screen_height_in_cm)/(opponent.size().height*2);
 
   glBegin(GL_QUADS); 
     glTexCoord2f(0.0, 0.0);
-    glVertex3f(x-2.0, y-1.0, z);
+    glVertex3f(x-quad_w, y-quad_h, z);
      
     glTexCoord2f(1.0, 0.0);
-    glVertex3f(x+1.0, y-1.0, z);
+    glVertex3f(x+quad_w, y-quad_h, z);
 
     glTexCoord2f(1.0, 1.0);
-    glVertex3f(x+1.0, y+1.0, z);
+    glVertex3f(x+quad_w, y+quad_h, z);
 
     glTexCoord2f(0.0, 1.0);
-    glVertex3f(x-2.0, y+1.0, z);
+    glVertex3f(x-quad_w, y+quad_h, z);
   glEnd();
 
   glDisable(GL_TEXTURE_2D);
@@ -378,8 +399,9 @@ void display()
       }
       
     }
-    
-    
+    if (!first)
+      draw_quad(0, 0, -180);
+    cout << x << " " << y << " " << z << endl;
 
     glPushAttrib(GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT) ;
     glDisable(GL_LIGHTING) ;
@@ -422,7 +444,8 @@ void display()
     glPopMatrix();
     //drawViewBox(screen_width_in_cm, screen_height_in_cm);
     //draw_random_quads();
-    draw_quad(quad_x, quad_y, quad_z);
+
+
 
     glDisable(GL_LIGHTING);
     glDisable(GL_LIGHT0 );
