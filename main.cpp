@@ -224,7 +224,7 @@ void draw_opponent(Mat &opponent, float x, float y, float z, int code, int scree
   //Using the ratio between pixels and cm for both padded and unpadded images
   float quad_w = (pow(2, xpaddingexp) * screen_width_in_cm)/(opponent.size().width*2);
   float quad_h = (pow(2, ypaddingexp) * screen_height_in_cm)/(opponent.size().height*2);
-  cout << xpaddingexp << endl;
+  //cout << xpaddingexp << endl;
   glBegin(GL_QUADS); 
     glTexCoord2f(0.0, 0.0);
     glVertex3f(x-quad_w, y-quad_h, z);
@@ -375,9 +375,12 @@ void display()
     if (bullet != NULL){
       
 
-
+      //cout << (bullet == NULL) << endl;
       bullet->draw();
-
+      if (bullet->z < -220 || bullet->z > FLT_MAX){
+          bullet = NULL;
+      }
+      /*
       if (bullet->x < quad_x + 1 && bullet->x > quad_x - 1 && bullet->y < quad_y + 1 && bullet->y > quad_y - 1 && bullet->z <= quad_z){
         if (bullet->z < -220){
           bullet = NULL;
@@ -390,12 +393,12 @@ void display()
         quad_x = get_random_double(-8, 8);
         quad_y = get_random_double(-4, 4);
         quad_z = get_random_double(-20, 0);
-      }
+      }*/
       
     }
     if (!first)
       draw_opponent(opponent, 0, 0, -180, IS_BGR, screen_width_in_cm, screen_height_in_cm);
-    draw_opponent(target_texture, 0, 0, -150, IS_BGRA, FH, FH);
+    draw_opponent(target_texture, 0, 0, local_player->getFaceData().center.z - 2, IS_BGRA, 1, 1);
     
     //drawViewBox(screen_width_in_cm, screen_height_in_cm);
     //draw_random_quads();
