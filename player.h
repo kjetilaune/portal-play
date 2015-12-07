@@ -36,6 +36,7 @@ public:
 protected:
   std::string _name;
 	int _lives;
+  Facedata _face_data;
 		
 };
 typedef struct std::shared_ptr<Player> PlayerPtr;

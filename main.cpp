@@ -511,6 +511,7 @@ float pixel_to_cm(int x, int rec_width){
 
 void idle()
 {
+  
   Mat prev, prev_gray;
   // grab a frame from the camera
   image = camera_handler->get_image_from_camera();

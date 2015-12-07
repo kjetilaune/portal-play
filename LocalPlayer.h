@@ -23,6 +23,7 @@ public:
   virtual FaceData getFaceData() {}
 
 private:
+	CameraHandler *camera_handler = NULL;
 
 };
 typedef std::shared_ptr<LocalPlayer> LocalPlayerPtr;
