@@ -1,4 +1,5 @@
 #include "NetworkReceiver.h"
+#include "Protocol.h"
 #include "util.h"
 
 #include <sys/socket.h>
@@ -52,8 +53,11 @@ void NetworkReceiver::_Listen(int serverPort) {
   // Determine size of transferred field
   cv::Mat img = cv::Mat::zeros(_width, _heigth, CV_8UC1);
   int imgSize = img.total()*img.elemSize();
+  Message msg;
+  int msgSize = sizeof(msg);
+  int totalSize = imgSize + msgSize;
   
-  char sockData[imgSize];
+  char sockData[totalSize];
   int bytes = 0;
 
   // Block forever
@@ -73,25 +77,28 @@ void NetworkReceiver::_Listen(int serverPort) {
         memset(sockData, 0x0, sizeof(sockData));
 
         // Receive all data.
-        for (int i = 0; i < imgSize; i += bytes) {
+        for (int i = 0; i < totalSize; i += bytes) {
         	if ((bytes = recv(connectingSocket, 
                             sockData + i, 
-                            imgSize - i, 
+                            totalSize - i, 
                             0)) == -1) {
  	          Error("Receiver recv() failed");
           }
         }
 
-        // Build OpenCV Mat using received data.
+        // Parse OpenCV Mat.
         for (int i = 0;  i < img.rows; i++) {
           for (int j = 0; j < img.cols; j++) {
             (img.row(i)).col(j) = (uchar)sockData[((img.cols)*i)+j];
           }
         }
+
+        // Parse Message.
+        Message* msg = (Message*) (sockData + imgSize);
  
-        // Send image to caller.
+        // Send parsed data to caller.
         if(_caller != NULL)
-          _caller->OnReceived(img);
+          _caller->OnReceived(img, *msg);
       }
     }
   }

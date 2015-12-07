@@ -10,7 +10,7 @@
 #include <thread>
 
 
-const int kPortNumber = 2234;
+const int kPortNumber = 22514;
 
 //-------------------------------------------------------------------------
 class NetworkTest
@@ -23,7 +23,7 @@ public:
 
 //IReceiverCallback
 public:
-  virtual void OnReceived(cv::Mat mat) {
+  virtual void OnReceived(cv::Mat mat, Message msg) {
     Info("OnReceived()");
 
     // Show image we just received.

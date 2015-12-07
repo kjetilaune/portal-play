@@ -1,4 +1,5 @@
 #include "NetworkSender.h"
+#include "Protocol.h"
 #include "Util.h"
 
 #include <sys/socket.h>
@@ -31,22 +32,30 @@ NetworkSender::NetworkSender(int serverPort,
 //-------------------------------------------------------------------------
 void NetworkSender::Send(cv::Mat img) {
 
-  cv::Mat img0 = cv::Mat::zeros(img.rows, img.cols, CV_8UC1);  
+  cv::Mat img0;
   cv::Mat img1;
+  Message msg;
 
   // Convert to grayscale
+  img0 = cv::Mat::zeros(img.rows, img.cols, CV_8UC1);
   flip(img, img, 1);
   cvtColor(img, img0, CV_BGR2GRAY);
 
-  // Determine size of field to transfer
-  int  imgSize = img0.total()*img0.elemSize();
-
-  int  bytes=0;
+  int bytes=0;
   img1 = (img0.reshape(0,1));
-  
+
+  // Determine size of field to transfer
+  int imgSize = img0.total()*img0.elemSize();
+  int msgSize = sizeof(msg);
+  int totalSize = imgSize + msgSize;
+
+  uchar* targetBuffer = new uchar[totalSize]; 
+  std::memcpy(targetBuffer, img1.data, imgSize);
+  std::memcpy(targetBuffer + imgSize, (void*)&msg, msgSize);
+
   // send the grayscaled image
   bool sendResult = true;
-  if ((bytes = send(_socket, img1.data, imgSize, 0)) < 0){
+  if ((bytes = send(_socket, targetBuffer, totalSize, 0)) < 0){
 	  Error("Sender send() failed");
     sendResult = false;
 	}
