@@ -1,10 +1,19 @@
 #include "camera_handler.h"
 
+
+using namespace std;
+using namespace cv;
+
 CameraHandler::CameraHandler(){
 	cap = new VideoCapture(0);
 
 	if (cap == NULL || !cap->isOpened())
 		exit(EXIT_FAILURE);
+
+  // Init Sender
+  _sender.reset(new NetworkSender(320, 240, 1234, "127.0.0.1", this));
+  (*cap) >> _currentImage;
+  _sender->Send(_currentImage);
 }
 
 CameraHandler::CameraHandler(string video_path){
@@ -21,11 +30,9 @@ CameraHandler::CameraHandler(string video_path){
 
 Mat CameraHandler::get_image_from_camera(){
 
-	Mat image;
+	(*cap) >> _currentImage;
 
-	(*cap) >> image;
-
-	return image;
+	return _currentImage;
 }
 
 Mat CameraHandler::get_image_from_opponent(){
@@ -52,3 +59,7 @@ int CameraHandler::get_width(){
 	return (int) cap->get( CV_CAP_PROP_FRAME_WIDTH );
 }
 
+void CameraHandler::OnSentCompleted(bool sendResult) {
+
+  _sender->Send(_currentImage);
+}
