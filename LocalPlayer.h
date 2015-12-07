@@ -4,6 +4,8 @@
 #include "player.h"
 #include "camera_handler.h"
 #include "IntrinsicCameraParameters.h"
+#include "network/NetworkSender.h"
+#include "network/ISenderCallback.h"
 
 #include <memory>
 #include <string>
@@ -13,7 +15,8 @@
  *
  */
 class LocalPlayer
-  : public Player {
+  : public Player,
+    public ISenderCallback {
     
 public:
   LocalPlayer(std::string name, IntrinsicCameraParameters, float, float);
@@ -29,6 +32,10 @@ public:
   //Must be called in order to calculate new positions
   void update();
 
+// ISenderCallback
+public:
+  virtual void OnSentCompleted(bool sendResult); 
+
 private:
 	const std::string frontalface_cascade = "/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml";
 	cv::CascadeClassifier frontalface_cascade_classifier;
@@ -36,6 +43,8 @@ private:
 	float screen_width_in_cm;
 	float screen_height_in_cm;
 	IntrinsicCameraParameters intrinsicCameraParameters;
+
+  NetworkSenderPtr _sender;
 
 	//Move to player
 	const int FH = 19;

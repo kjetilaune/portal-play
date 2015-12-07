@@ -99,3 +99,7 @@ void LocalPlayer::update(){
 
 }
 
+void LocalPlayer::OnSentCompleted(bool sendResult) {
+
+  _sender->Send(this->_currentImg);
+}

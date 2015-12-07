@@ -58,8 +58,3 @@ int CameraHandler::get_height(){
 int CameraHandler::get_width(){
 	return (int) cap->get( CV_CAP_PROP_FRAME_WIDTH );
 }
-
-void CameraHandler::OnSentCompleted(bool sendResult) {
-
-  _sender->Send(_currentImage);
-}
