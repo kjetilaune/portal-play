@@ -11,9 +11,6 @@ CameraHandler::CameraHandler(){
 		exit(EXIT_FAILURE);
 
   // Init Sender
-  //_sender.reset(new NetworkSender(320, 240, 1234, "127.0.0.1", this));
-  (*cap) >> _currentImage;
-  //_sender->Send(_currentImage);
 }
 
 CameraHandler::CameraHandler(string video_path){
