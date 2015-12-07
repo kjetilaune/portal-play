@@ -34,6 +34,7 @@
 
 #include <tgmath.h> //for log2
 
+
 using namespace cv;
 using namespace std;
 
@@ -69,9 +70,16 @@ int x_avg = 0, y_avg = 0;
 cv::Mat image, gray_image, resized_gray_image, target_texture, flow_image,
   thresholded_flow_image, current_threshold_image, opponent;
 //Intrinsic camera parameters
-float fovx, fovy, focalLength, principalPointX, principalPointY, fx, fy, k1, k2, p1, p2;
+//float fovx, fovy, focalLength, principalPointX, principalPointY, fx, fy, k1, k2, p1, p2;
 Mat cameraMatrix;
 vector<double> distCoeffs;
+
+LocalPlayer *local_player;
+
+
+
+IntrinsicCameraParameters intrinsicCameraParameters;
+
 vector<Rect> rect;
 int quad_x, quad_y, quad_z;
 
@@ -116,22 +124,6 @@ void drawAxes(float length)
   glPopAttrib() ;
 }
 
-void calculate_average_face(){
-  last_positions[position_counter][0] = x + screen_width_in_cm/2;
-  last_positions[position_counter][1] = y + screen_height_in_cm/2;
-  x_avg = 0;
-  y_avg = 0;
-  for (int i = 0; i < 3; i++){
-    x_avg += last_positions[i][0];
-    y_avg += last_positions[i][1];
-  }
-  x = (int) x_avg/3 - screen_width_in_cm/2;
-  y = (int) y_avg/3 - screen_height_in_cm/2;
-
-  position_counter++;
-  if (position_counter >=3)
-    position_counter = 0;
-}
 
 void cross_product(Eigen::VectorXd& vec, Eigen::VectorXd a, Eigen::VectorXd b){
   vec(0) = a(1)*b(2) - a(2)*b(1);
@@ -141,7 +133,7 @@ void cross_product(Eigen::VectorXd& vec, Eigen::VectorXd a, Eigen::VectorXd b){
 
 
 
-void find_clipping_planes(){
+void find_clipping_planes(float x, float y, float z){
    //Screen corners- and eye coordinates
    Eigen::VectorXd  pa(3), pb(3), pc(3), pe(3);
    Eigen::VectorXd vr(3), vu(3), vn(3), va(3), vb(3), vc(3);
@@ -189,7 +181,7 @@ void find_clipping_planes(){
    glTranslatef(-pe(0), -pe(1), -pe(2));
 }
 
-void draw_quad(float x, float y, float z){
+void draw_opponent(float x, float y, float z){
   //Texture set-up
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -202,8 +194,6 @@ void draw_quad(float x, float y, float z){
 
   
   Mat opponentRGBA(opponent.size(), CV_8UC4, image_data);
-  //Mat opponentRGBA(opponent);
-  //cout << opponent << endl;
   cvtColor(opponent, opponentRGBA, CV_BGR2RGBA, 4);
 
 
@@ -252,7 +242,7 @@ double get_random_double(int min, int max){
   return rand() % (abs(max) + abs(min)) - abs(min);
 }
 
-void display_hit_animation(Mat &image){
+void display_hit_animation(Mat &image, float x, float y, float z){
   second_time = time(NULL);
     
   if (difftime(second_time, first_time) > 3){
@@ -265,7 +255,7 @@ void display_hit_animation(Mat &image){
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   
-  gluPerspective(fovy, image.size().width*1.0/image.size().height, 1, 500); 
+  gluPerspective(intrinsicCameraParameters.fovy, image.size().width*1.0/image.size().height, 1, 500); 
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -341,7 +331,7 @@ void display()
   //calculate_average_face();
 
   if (hit_animation){
-    display_hit_animation(tempimage);
+    display_hit_animation(tempimage, local_player->getFaceData().center.x, local_player->getFaceData().center.y, local_player->getFaceData().center.z);
   }
 
   else{
@@ -357,14 +347,11 @@ void display()
       flip(opponent, opponent2, -1);
       glDrawPixels( opponent2.size().width, opponent2.size().height, GL_BGR, GL_UNSIGNED_BYTE, opponent2.ptr() );
     }
-    //////////////////////////////////////////////////////////////////////////////////
-    // Here, set up new parameters to render a scene viewed from the camera.
 
-    //glViewport(0, 0, 2880, 1800);
     glViewport(0, 0, tempimage.size().width, tempimage.size().height);
 
 
-    find_clipping_planes();
+    find_clipping_planes(local_player->getFaceData().center.x, local_player->getFaceData().center.y, local_player->getFaceData().center.z);
     
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -402,52 +389,12 @@ void display()
       
     }
     if (!first)
-      draw_quad(0, 0, -180);
-    cout << x << " " << y << " " << z << endl;
-
-    glPushAttrib(GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT) ;
-    glDisable(GL_LIGHTING) ;
-
-    //Draw cross hair
-    glPushMatrix();
-      glBegin(GL_LINES);
-          glColor3f(1.0f,0.0f,0.0f);    
-          glVertex3f(x, y-0.75, -60);
-          glVertex3f(x, y-0.25, -60);
-      glEnd();
-      
-    glPopMatrix();
-
-    glPushMatrix();
-      glBegin(GL_LINES);
-          glColor3f(1.0f,0.0f,0.0f);    
-          glVertex3f(x, y+0.75, -60);
-          glVertex3f(x, y+0.25, -60);
-      glEnd();
-      
-    glPopMatrix();
-
-    glPushMatrix();
-      glBegin(GL_LINES);
-          glColor3f(1.0f,0.0f,0.0f);    
-          glVertex3f(x-0.75, y, -60);
-          glVertex3f(x-0.25, y, -60);
-      glEnd();
-      
-    glPopMatrix();
-
-    glPushMatrix();
-      glBegin(GL_LINES);
-          glColor3f(1.0f,0.0f,0.0f);    
-          glVertex3f(x+0.75, y, -60);
-          glVertex3f(x+0.25, y, -60);
-      glEnd();
-      glDisable(GL_DEPTH_TEST);
-    glPopMatrix();
+      draw_opponent(0, 0, -180);
+    
     //drawViewBox(screen_width_in_cm, screen_height_in_cm);
     //draw_random_quads();
 
-
+    drawer->draw_cross_hair(local_player->getFaceData().center.x, local_player->getFaceData().center.y, local_player->getFaceData().center.z);
 
     glDisable(GL_LIGHTING);
     glDisable(GL_LIGHT0 );
@@ -499,22 +446,12 @@ void keyboard( unsigned char key, int xxx, int yyy )
 }
 
 
-float pixel_to_cm(int x, int rec_width){
-  if (rec_width > 0){
-    float pixel_per_cm = rec_width / (FH*0.8);
-    float b = image.size().width/2.0 - x;
-    return b/pixel_per_cm;
-  }
-  return 0;
-}
-
-
 void idle()
 {
-  
+  local_player->update();
   Mat prev, prev_gray;
   // grab a frame from the camera
-  image = camera_handler->get_image_from_camera();
+  image = local_player->getImage();
   opponent = camera_handler->get_image_from_opponent();
 
   //namedWindow( "DisplayWindow", WINDOW_AUTOSIZE );
@@ -522,7 +459,7 @@ void idle()
 
   double aspect_ratio = image.size().width*1.0 / image.size().height;
   Size s(320, int(320.0/aspect_ratio));
-
+/*
   if (first){
     first = false;
     cvtColor(image, gray_image, CV_RGB2GRAY);
@@ -552,39 +489,11 @@ void idle()
 
     //drawButtons(image);
   }
-  
-  //Detect face
-  frontalface_cascade_classifier.detectMultiScale(gray_image, rect, 1.1, 2, CV_HAAR_SCALE_IMAGE|CV_HAAR_FIND_BIGGEST_OBJECT, Size(100,100));
-  
-  //Find largest face
-  Scalar color(0,255,255);
-  Rect max_rect;
-  if(rect.size() > 0)
-    max_rect = rect[0];
-  for (int i = 0; i < rect.size(); i++){
-    if (rect[i].width > max_rect.width)
-      max_rect = rect[i];
-  }
-  if (true)
-    //box is 0.8*height
-    rectangle(image, Point(max_rect.x + 0.1*max_rect.width, max_rect.y), Point(max_rect.x + 0.9*max_rect.width, max_rect.y + max_rect.height), color, 1);  
-
-  //Calculate x,y,z in cm
-  z = fy * (FH) / (max_rect.height);
-  x = pixel_to_cm(max_rect.x + max_rect.width/2.0, max_rect.width); //NOT sure why 1.25 gives nice results...
-  y = ((image.size().height/2.0 - (max_rect.y + max_rect.height/2)) / (max_rect.height / FH));
-
-  if (x < -screen_width_in_cm/2)
-    x = -screen_width_in_cm/2 + 0.1;
-  if (x > screen_width_in_cm/2)
-    x = screen_width_in_cm/2 - 0.1;
-
-  if (y < -screen_height_in_cm/2)
-    y = -screen_height_in_cm/2 + 0.1;
-  if (y > screen_height_in_cm/2)
-    y = screen_height_in_cm/2 - 0.1;
-
-  //cout << "X: " << x << endl;
+*/
+  first = false;
+  x = local_player->getFaceData().center.x;
+  y = local_player->getFaceData().center.y;
+  z = local_player->getFaceData().center.z;
 }
 
 void populateParameterList(char* s, std::vector<float>& list){
@@ -597,24 +506,24 @@ void populateParameterList(char* s, std::vector<float>& list){
 }
 
 void assignParameterVariables(std::vector<float>& list){
-  fovx = list[0];
-  fovy = list[1];
-  focalLength = list[2];
-  principalPointX = list[3];
-  principalPointY = list[4];
-  fx = list[5];
-  fy = list[6];
-  k1 = list[7];
-  k2 = list[8];
-  p1 = list[9];
-  p2 = list[10];
+  intrinsicCameraParameters.fovx = list[0];
+  intrinsicCameraParameters.fovy = list[1];
+  intrinsicCameraParameters.focalLength = list[2];
+  intrinsicCameraParameters.principalPointX = list[3];
+  intrinsicCameraParameters.principalPointY = list[4];
+  intrinsicCameraParameters.fx = list[5];
+  intrinsicCameraParameters.fy = list[6];
+  intrinsicCameraParameters.k1 = list[7];
+  intrinsicCameraParameters.k2 = list[8];
+  intrinsicCameraParameters.p1 = list[9];
+  intrinsicCameraParameters.p2 = list[10];
 
-  cameraMatrix = (Mat_<float>(3,3) << fx, 0, principalPointX, 0, fy, principalPointY, 0, 0, 1);
+  intrinsicCameraParameters.cameraMatrix = (Mat_<float>(3,3) << list[5], 0, list[3], 0, list[6], list[4], 0, 0, 1);
 
-  distCoeffs.push_back(k1);
-  distCoeffs.push_back(k2);
-  distCoeffs.push_back(p1);
-  distCoeffs.push_back(p2);
+  intrinsicCameraParameters.distCoeffs.push_back(intrinsicCameraParameters.k1);
+  intrinsicCameraParameters.distCoeffs.push_back(intrinsicCameraParameters.k2);
+  intrinsicCameraParameters.distCoeffs.push_back(intrinsicCameraParameters.p1);
+  intrinsicCameraParameters.distCoeffs.push_back(intrinsicCameraParameters.p2);
 }
 
 int main( int argc, char **argv )
@@ -622,8 +531,7 @@ int main( int argc, char **argv )
   //Seed for random generation
   srand (time(NULL));
 
-  Player *p = new LocalPlayer("Kjetil");
-  cout << p->get_name() << endl;
+
 
 
   drawer = new Drawer("/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/hw3/stadium2.jpg");
@@ -634,7 +542,7 @@ int main( int argc, char **argv )
   bird2 = new Bird();
   bird3 = new Bird();
 
-  target_texture = imread(texture_path, CV_LOAD_IMAGE_UNCHANGED);
+  
 
 
   quad_x = get_random_double(-8, 8);
@@ -645,35 +553,40 @@ int main( int argc, char **argv )
 
   int w,h;
 
-  //Load face recognizer
-  frontalface_cascade_classifier.load(frontalface_cascade);
-
+  
   //Load texture
-  target_texture = imread(texture_path, CV_LOAD_IMAGE_UNCHANGED);
+  //target_texture = imread(texture_path, CV_LOAD_IMAGE_UNCHANGED);
     
   if ( argc == 1 ) {
-    camera_handler = new CameraHandler();
+    local_player = new LocalPlayer("Kjetil", intrinsicCameraParameters, screen_width_in_cm, screen_height_in_cm);
   } else if ( argc == 2 ) {
     char* paramsPath(argv[1]);
     std::vector<float> paramList;
     populateParameterList(paramsPath, paramList);
     assignParameterVariables(paramList);
-    camera_handler = new CameraHandler();
+
+    local_player = new LocalPlayer("Kjetil", intrinsicCameraParameters, screen_width_in_cm, screen_height_in_cm);
+    //camera_handler = new CameraHandler();
   } else if (argc == 3){
     char* paramsPath(argv[1]);
     std::vector<float> paramList;
     populateParameterList(paramsPath, paramList);
     assignParameterVariables(paramList);
+
+    local_player = new LocalPlayer("Kjetil", intrinsicCameraParameters, screen_width_in_cm, screen_height_in_cm);
+
+    //Remove when remoteplayer can provide images
     camera_handler = new CameraHandler(argv[2]);
   } else {
     fprintf( stderr, "usage: %s [<filename>]\n", argv[0] );
     return 1;
   }
 
+  
 
   // get width and height
-  w = camera_handler->get_width();
-  h = camera_handler->get_height();
+  w = local_player->get_width();
+  h = local_player->get_height();
   cout << w << " " << h << endl;
   // On Linux, there is currently a bug in OpenCV that returns 
   // zero for both width and height here (at least for video from file)
