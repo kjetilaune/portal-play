@@ -48,8 +48,9 @@ int rotcnt = 0;
 
 int bird_degrees = 0;
 
-const std::string kIpAddress = "127.0.0.1";
-const int kPortNumber = 11229;
+std::string IpAddress = "127.0.0.1";
+int localPortNumber = 11229;
+int remotePortNumber = 0;
 const int kStreamWidth = 320;
 const int kStreamHeight = 240;
 
@@ -593,6 +594,14 @@ int main( int argc, char **argv )
 
     //Remove when remoteplayer can provide images
     //camera_handler = new CameraHandler(argv[2]);
+  } else if (argc == 5){
+    char* paramsPath(argv[1]);
+    std::vector<float> paramList;
+    populateParameterList(paramsPath, paramList);
+    assignParameterVariables(paramList);
+    IpAddress = argv[2];
+    localPortNumber = std::stoi(argv[3]);
+    remotePortNumber = std::stoi(argv[4]);
   } else {
     fprintf( stderr, "usage: %s [<filename>]\n", argv[0] );
     return 1;
@@ -601,14 +610,14 @@ int main( int argc, char **argv )
   remote_player = new RemotePlayer("Alex",
                                    kStreamHeight,
                                    kStreamWidth,
-                                   kPortNumber);
+                                   remotePortNumber);
 
   local_player = new LocalPlayer("Kjetil", 
                                  intrinsicCameraParameters, 
                                  screen_width_in_cm, 
                                  screen_height_in_cm,
-                                 kIpAddress,
-                                 kPortNumber,
+                                 IpAddress,
+                                 localPortNumber,
                                  kStreamWidth,
                                  kStreamHeight);
 
