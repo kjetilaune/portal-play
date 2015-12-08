@@ -11,7 +11,7 @@
 
 
 const std::string kIpAddress = "127.0.0.1";
-const int kPortNumber = 11224;
+const int kPortNumber = 24114;
 const int kWidth = 320;
 const int kHeight = 240;
 
@@ -29,6 +29,9 @@ public:
   virtual void OnReceived(cv::Mat mat, Message msg) {
     Info("OnReceived()");
 
+    std::cout << "----- " << msg.center.x << std::endl;
+    std::cout << mat.at<uint>(5,5) << std::endl;
+
     // Show image we just received.
     cv::imshow("NetworkTest", mat);
   }
@@ -40,8 +43,14 @@ public:
 
     // Now that the sending is completed we can send the next image.
     cv::Mat image;
-    _capture >> image; 
-    _sender->Send(image);
+    (*_capture) >> image;
+
+    std::cout << "OnSendCompleted." << std::endl;
+
+    Message msg;
+    msg.center.x = 555;
+
+    _sender->Send(image, msg);
   }
 
 public:
@@ -52,23 +61,26 @@ public:
 
     _sender.reset(new NetworkSender(kWidth, kHeight, kPortNumber, kIpAddress, this));
 
-    // Capture image and Show it.    
-    _capture.open(0);
+    // Capture image and Show it.  
+    _capture->open(0);
     cv::Mat image;
-    _capture >> image;
+    (*_capture) >> image;
 
     cv::namedWindow("NetworkTest", CV_WINDOW_AUTOSIZE);     
-    cv::imshow("NetworkTest", image);    
 
     // Init transmission storm.
     _sender->Send(image);
+
+    std::cout << "xxx" << std::endl;
+
+    BlockUntilKeypress();
   }
 
 private:
   NetworkReceiverPtr _receiver;
   NetworkSenderPtr _sender;
-  cv::VideoCapture _capture;
-
+  cv::VideoCapture* _capture = new cv::VideoCapture();  
+  
 };
 
 //-------------------------------------------------------------------------

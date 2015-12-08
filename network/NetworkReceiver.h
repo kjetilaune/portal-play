@@ -1,6 +1,7 @@
 #ifndef NETWORKRECEIVER_H_
 #define NETWORKRECEIVER_H_
 
+#include "INetworkReceiver.h"
 #include "IReceiverCallback.h"
 
 #include <memory>
@@ -10,15 +11,17 @@
 /*
  * A class representing a Network Receiver that uses TCP as transport.
  */
-class NetworkReceiver {
+class NetworkReceiver
+  : public INetworkReceiver {
 public:
   NetworkReceiver(int heigth, 
                   int width, 
                   IReceiverCallback* caller);
   virtual ~NetworkReceiver() {}
 
+// INetworkReceiver
 public:
-  void Listen(int serverPort);
+  virtual void Listen(int serverPort);
 
 private:
   void _Listen(int serverPort);

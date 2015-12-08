@@ -5,6 +5,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include <chrono>
+
 
 //-------------------------------------------------------------------------
 NetworkSender::NetworkSender(int heigth, 
@@ -14,7 +16,8 @@ NetworkSender::NetworkSender(int heigth,
                              ISenderCallback* caller)
   : _heigth(heigth),
     _width(width),
-    _caller(caller) {
+    _caller(caller),
+    _isBuisy(false) {
 
   struct sockaddr_in serverAddr;
   socklen_t serverAddrLen = sizeof(serverAddr);
@@ -42,6 +45,15 @@ void NetworkSender::Send(cv::Mat img) {
 
 //-------------------------------------------------------------------------
 void NetworkSender::Send(cv::Mat img, Message msg) {
+
+  new std::thread(&NetworkSender::_Send, this, img, msg);
+//  _Send(img, msg);
+}
+
+//-------------------------------------------------------------------------
+void NetworkSender::_Send(cv::Mat img, Message msg) {
+ 
+  _isBuisy = true;
 
   cv::Mat img0;
   cv::Mat img1;
@@ -76,4 +88,7 @@ void NetworkSender::Send(cv::Mat img, Message msg) {
   // Notify caller that sending is completed.
   if(_caller != NULL)
     _caller->OnSentCompleted(sendResult);
+
+  _isBuisy = false;
 }
+

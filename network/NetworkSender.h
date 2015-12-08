@@ -1,10 +1,12 @@
 #ifndef NETWORKSENDER_H_
 #define NETWORKSENDER_H_
 
+#include "INetworkSender.h"
 #include "ISenderCallback.h"
 #include "Protocol.h"
 
 #include <memory>
+#include <thread>
 #include <string>
 
 #include <opencv/cv.h>
@@ -15,7 +17,8 @@
 /*
  * A class representing a sender that uses TCP as transport.
  */
-class NetworkSender {
+class NetworkSender
+  : public INetworkSender {
 public:
   NetworkSender(int heigth, 
                 int width, 
@@ -24,9 +27,19 @@ public:
                 ISenderCallback* caller);
   virtual ~NetworkSender() {}
 
+// INetworkSender
 public:
-  void Send(cv::Mat img);
-  void Send(cv::Mat img, Message msg);
+  // These methods create new threads in a fire and forget fasion.
+  // If defined in the constructor, a callback in the calling class
+  // is called.
+  virtual void Send(cv::Mat img);
+  virtual void Send(cv::Mat img, Message msg);
+
+public:
+  bool isBuisy() { return _isBuisy; }
+
+private:
+  void _Send(cv::Mat img, Message msg);
 
 private:
   int _heigth;
@@ -36,6 +49,7 @@ private:
 
   ISenderCallback* _caller;
 
+  bool _isBuisy;
 };
 typedef std::shared_ptr<NetworkSender> NetworkSenderPtr;
 

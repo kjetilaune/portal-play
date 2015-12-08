@@ -14,9 +14,7 @@ NetworkReceiver::NetworkReceiver(int heigth,
   : _heigth(heigth),
     _width(width),
     _caller(caller) {
-
-    cv::namedWindow("stream_client", CV_WINDOW_AUTOSIZE);
-      
+ 
 }
 
 //-------------------------------------------------------------------------
