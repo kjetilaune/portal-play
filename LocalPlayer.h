@@ -5,7 +5,6 @@
 #include "camera_handler.h"
 #include "IntrinsicCameraParameters.h"
 #include "network/NetworkSender.h"
-#include "network/ISenderCallback.h"
 
 #include <memory>
 #include <string>
@@ -15,16 +14,18 @@
  *
  */
 class LocalPlayer
-  : public Player,
-    public ISenderCallback {
+  : public Player {
     
 public:
-  LocalPlayer(std::string name, IntrinsicCameraParameters, float, float);
+  LocalPlayer(std::string name, 
+              IntrinsicCameraParameters, 
+              float width_in_cm, 
+              float height_in_cm,
+              std::string ipAddress,
+              int portNumber,
+              int streamWidth,
+              int streamHeigth);
   virtual ~LocalPlayer() {}
-
-// ISenderCallback
-public:
-  virtual void OnSentCompleted(bool sendResult); 
 
 // From Player
 public:
@@ -37,6 +38,7 @@ public:
   
   //Must be called in order to calculate new positions
   void update();
+  void updateRemotePlayer();
 
 private:
   float pixel_to_cm(int, int);

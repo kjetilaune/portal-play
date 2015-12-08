@@ -3,13 +3,15 @@
 
 const int FH = 19;
 
-const std::string kIpAddress = "127.0.0.1";
-const int kPortNumber = 11224;
-const int kWidth = 320;
-const int kHeight = 240;
-
 //-------------------------------------------------------------------------
-LocalPlayer::LocalPlayer(std::string name, IntrinsicCameraParameters param, float width_in_cm, float height_in_cm)
+LocalPlayer::LocalPlayer(std::string name, 
+                         IntrinsicCameraParameters param, 
+                         float width_in_cm, 
+                         float height_in_cm,
+                         std::string ipAddress,
+                         int portNumber,
+                         int streamWidth,
+                         int streamHeigth)
   : Player(name) {
 
   camera_handler = new CameraHandler();
@@ -19,7 +21,10 @@ LocalPlayer::LocalPlayer(std::string name, IntrinsicCameraParameters param, floa
   intrinsicCameraParameters = param;
   
   // Init NetworkSender.
-  _sender.reset(new NetworkSender(kWidth, kHeight, kPortNumber, kIpAddress, this));
+  _sender.reset(new NetworkSender(streamWidth, streamHeigth, portNumber, ipAddress, NULL));
+
+  _currentImg = camera_handler->get_image_from_camera();
+  _sender->Send(_currentImg);
 }
 
 float LocalPlayer::pixel_to_cm(int x, int rec_width){
@@ -100,10 +105,14 @@ void LocalPlayer::update(){
   this->_currentImg = camera_handler->get_image_from_camera();
   find_face();
 
+  updateRemotePlayer();
 }
 
-void LocalPlayer::OnSentCompleted(bool sendResult) {
-
+void LocalPlayer::updateRemotePlayer() {
+  
+  if(_sender->isBuisy() == true)
+    return;
+  
   // Build Message.
   Message msg;
   msg.center = _faceData.center;
@@ -112,5 +121,5 @@ void LocalPlayer::OnSentCompleted(bool sendResult) {
   msg.downleft = _faceData.downleft;
   msg.downright = _faceData.downright;
 
-  _sender->Send(this->_currentImg, msg);
+  _sender->Send(this->_currentImg);
 }
