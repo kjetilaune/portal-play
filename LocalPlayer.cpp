@@ -3,6 +3,7 @@
 
 const int FH = 19;
 
+int portNumber2;
 //-------------------------------------------------------------------------
 LocalPlayer::LocalPlayer(std::string name, 
                          IntrinsicCameraParameters param, 
@@ -13,8 +14,12 @@ LocalPlayer::LocalPlayer(std::string name,
                          int streamWidth,
                          int streamHeigth)
   : Player(name) {
-
-  camera_handler = new CameraHandler();
+  
+  portNumber2 = portNumber;
+  if (portNumber2%2 == 1)
+    camera_handler = new CameraHandler("../media/test_video.mov");
+  else
+    camera_handler = new CameraHandler();
   screen_width_in_cm = width_in_cm;
   screen_height_in_cm = height_in_cm;
   frontalface_cascade_classifier.load(frontalface_cascade);
@@ -23,8 +28,26 @@ LocalPlayer::LocalPlayer(std::string name,
   // Init NetworkSender.
   _sender.reset(new NetworkSender(streamWidth, streamHeigth, portNumber, ipAddress, NULL));
 
-  _currentImg = camera_handler->get_image_from_camera();
-  _sender->Send(_currentImg);
+  if (portNumber2%2 == 1){
+    _currentImg = camera_handler->get_image_from_video();
+    _currentImg = camera_handler->get_image_from_video();
+  }
+  else{
+    _currentImg = camera_handler->get_image_from_camera();
+    _currentImg = camera_handler->get_image_from_camera();
+  }
+  //_sender->Send(_currentImg);
+
+  cv::Mat gray_image;
+  if (_currentImg.channels() > 1)
+    cv::cvtColor(_currentImg, gray_image, CV_RGB2GRAY);
+  else
+    gray_image = _currentImg;
+
+  double aspect_ratio = _currentImg.size().width*1.0 / _currentImg.size().height;
+  resize(gray_image, resized_gray_image, cv::Size(320.0, (int)(320.0/aspect_ratio)));
+
+  bullet = new Bullet(0,0,0);
 }
 
 float LocalPlayer::pixel_to_cm(int x, int rec_width){
@@ -85,6 +108,45 @@ void LocalPlayer::find_face(){
   _faceData.downright = cv::Point2f(x + FH*0.8/2, y - FH/2);
 }
 
+void LocalPlayer::calculate_optical_flow(){
+  double aspect_ratio = _currentImg.size().width*1.0 / _currentImg.size().height;
+
+  cv::Mat previous_gray_image2 = resized_gray_image.clone();
+  cv::resize(previous_gray_image2, previous_gray_image, cv::Size(320.0, (int)(320.0/aspect_ratio)));
+
+  cv::Mat gray_image;
+  if (_currentImg.channels() > 1)
+    cv::cvtColor(_currentImg, gray_image, CV_RGB2GRAY);
+  else
+    gray_image = _currentImg;
+  
+  cv::resize(gray_image, resized_gray_image, cv::Size(320.0, (int)(320.0/aspect_ratio)));
+  //std::cout << portNumber2 << " previous_gray_image size: " << previous_gray_image.channels() << std::endl << "resized_gray_image size: " << resized_gray_image.channels() << std::endl << std::endl;
+  //Calculate optical flow
+  cv::Mat flow(previous_gray_image.size(), CV_32FC1), flow_downscaled;
+  calcOpticalFlowFarneback(previous_gray_image, resized_gray_image, flow_downscaled, 0.5, 1, 3, 1, 10, 1.1, 0);
+   for (int i = 0; i < flow_downscaled.rows; i++){
+    for (int j = 0; j < flow_downscaled.cols; j++){
+      cv::Point2f p = flow_downscaled.at<cv::Point2f>(i,j);
+      flow.at<float>(i,j) = sqrt(p.x*p.x + p.y*p.y);
+    } 
+  }
+
+  cv::Mat a, thresholded_flow_image;
+  cv::resize(flow, a, cv::Size(_currentImg.size().width, _currentImg.size().height));  
+  cv::threshold(a, thresholded_flow_image, 10, 255, cv::THRESH_BINARY);
+
+  current_threshold_image = thresholded_flow_image.clone();
+
+}
+
+bool LocalPlayer::is_firing(){
+  cv::Rect fire_rect(20, 20, 160, 160);
+  cv::Mat right_square(current_threshold_image, fire_rect);
+  return (cv::countNonZero(right_square) > 2000); 
+  
+}
+
 cv::Mat LocalPlayer::getImage() {
   return _currentImg;
 }
@@ -102,9 +164,19 @@ int LocalPlayer::get_height(){
 }
 
 void LocalPlayer::update(){
-  this->_currentImg = camera_handler->get_image_from_camera();
+  //std::cout << (portNumber2%2 == 1) << std::endl;
+  if (portNumber2%2 == 1)
+    _currentImg = camera_handler->get_image_from_video();
+  else
+    _currentImg = camera_handler->get_image_from_camera();
   find_face();
-
+  calculate_optical_flow();
+  std::cout << is_firing() << std::endl;
+  if (is_firing())
+    bullet->draw();
+  //Shows optical flow
+  //cv::namedWindow( "DisplayWindow", cv::WINDOW_AUTOSIZE );
+  //cv::imshow("DisplayWindow", current_threshold_image);
   updateRemotePlayer();
 }
 

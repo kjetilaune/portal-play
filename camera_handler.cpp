@@ -30,7 +30,7 @@ Mat CameraHandler::get_image_from_camera(){
 	return _currentImage;
 }
 
-Mat CameraHandler::get_image_from_opponent(){
+Mat CameraHandler::get_image_from_video(){
 	Mat image;
 	
 	if (framecounter >= number_of_frames-1){

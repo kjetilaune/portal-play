@@ -5,6 +5,7 @@
 #include "camera_handler.h"
 #include "IntrinsicCameraParameters.h"
 #include "network/NetworkSender.h"
+#include "bullet.h"
 
 #include <memory>
 #include <string>
@@ -43,6 +44,8 @@ public:
 private:
   float pixel_to_cm(int, int);
 	void find_face();
+  void calculate_optical_flow();
+  bool is_firing();
 
 private:
   //OpenCv members
@@ -55,6 +58,9 @@ private:
   //Object members
   CameraHandler *camera_handler = NULL;
   NetworkSenderPtr _sender;
+
+  cv::Mat resized_gray_image, previous_gray_image, current_threshold_image;
+  Bullet *bullet = NULL;
 };
 typedef std::shared_ptr<LocalPlayer> LocalPlayerPtr;
 

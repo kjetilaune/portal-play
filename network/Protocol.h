@@ -17,7 +17,8 @@ struct _Message {
   cv::Point2f downleft;
 
   // Game interaction information.
-  bool shoot;
+  int shoot;
+  int hit;
 };
 
 #endif //PROTOCOL_H

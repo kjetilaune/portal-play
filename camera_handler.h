@@ -21,7 +21,7 @@ public:
 	CameraHandler(std::string);
 
   cv::Mat get_image_from_camera();
-  cv::Mat get_image_from_opponent();
+  cv::Mat get_image_from_video();
 	int get_width();
 	int get_height();
 

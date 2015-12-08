@@ -76,7 +76,7 @@ int x_avg = 0, y_avg = 0;
 cv::Mat image, gray_image, resized_gray_image, target_texture, flow_image,
   thresholded_flow_image, current_threshold_image, opponent;
 
-cv::Mat opponent2;
+cv::Mat opponent2, fully_transparent;
 
 LocalPlayer* local_player;
 RemotePlayer* remote_player;
@@ -339,6 +339,9 @@ void display()
   
   glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
   
+  Mat empty_mat;
+  copyMakeBorder(fully_transparent, empty_mat, image.size().height/2,image.size().height/2,image.size().width/2,image.size().width/2, BORDER_CONSTANT, Scalar(0,0,0,0));
+
   // show the current camera frame
   //based on the way cv::Mat stores data, you need to flip it before displaying it
   cv::Mat tempimage, temp2;
@@ -346,6 +349,9 @@ void display()
   double windowWidth = glutGet(GLUT_SCREEN_WIDTH);
   double windowHeight = glutGet(GLUT_SCREEN_HEIGHT);
   
+
+  drawer->draw_fire_button(empty_mat);
+  glDrawPixels( empty_mat.size().width, empty_mat.size().height, GL_BGRA, GL_UNSIGNED_BYTE, empty_mat.ptr() );
   //calculate_average_face();
 
   if (hit_animation){
@@ -411,7 +417,7 @@ void display()
     }
     if (!first)
       draw_opponent(opponent2, 0, 0, -180, IS_GRAY, screen_width_in_cm, screen_height_in_cm);
-    draw_opponent(target_texture, 0, 0, local_player->getFaceData().center.z - 2, IS_BGRA, 1, 1);
+    //draw_opponent(target_texture, 0, 0, local_player->getFaceData().center.z - 2, IS_BGRA, 1, 1);
     
     //drawViewBox(screen_width_in_cm, screen_height_in_cm);
     //draw_random_quads();
@@ -474,45 +480,14 @@ void idle()
   // grab a frame from the camera
   image = local_player->getImage();
 
-  //opponent = camera_handler->get_image_from_opponent();
+  //opponent = camera_handler->get_image_from_video();
   opponent2 = remote_player->getImage();
 
-  //namedWindow( "DisplayWindow", WINDOW_AUTOSIZE );
-  //imshow("DisplayWindow", opponent2);
+  
 
   double aspect_ratio = image.size().width*1.0 / image.size().height;
   Size s(320, int(320.0/aspect_ratio));
-/*
-  if (first){
-    first = false;
-    cvtColor(image, gray_image, CV_RGB2GRAY);
-    resize(gray_image, resized_gray_image, s);
-  } 
-  else {
-    prev_gray = resized_gray_image.clone();
 
-    cvtColor(image, gray_image, CV_RGB2GRAY);
-    resize(gray_image, resized_gray_image, s);
-
-    //Calculate optical flow
-    Mat flow(resized_gray_image.size(), CV_32FC1), flow_downscaled;
-    calcOpticalFlowFarneback(prev_gray, resized_gray_image, flow_downscaled, 0.5, 1, 3, 1, 5, 1.1, 0);
-     for (int i = 0; i < flow_downscaled.rows; i++){
-      for (int j = 0; j < flow_downscaled.cols; j++){
-        Point2f p = flow_downscaled.at<Point2f>(i,j);
-        flow.at<float>(i,j) = sqrt(p.x*p.x + p.y*p.y);
-      } 
-    }
-
-    Mat a;
-    resize(flow, a, Size(image.size().width, image.size().height));  
-    threshold(a, thresholded_flow_image, 10, 255, THRESH_BINARY);
-
-    current_threshold_image = thresholded_flow_image.clone();
-
-    //drawButtons(image);
-  }
-*/
   first = false;
 
 }
@@ -553,7 +528,7 @@ int main( int argc, char **argv )
   srand (time(NULL));
 
 
-
+  fully_transparent = imread("../media/empty.png", CV_LOAD_IMAGE_UNCHANGED);
 
   drawer = new Drawer("/Users/Eplemaskin/Dropbox/Skole/4.klasse/augmentedreality/hw3/stadium2.jpg");
 
