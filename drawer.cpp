@@ -32,6 +32,21 @@ Drawer::Drawer(char* texture_path){
 	glBindTexture(GL_TEXTURE_2D, texture);*/
 }
 
+void Drawer::draw_fire_button(cv::Mat &image){
+  cv::Point p;
+  p.x = image.size().width - 100;
+  p.y = image.size().height - 100;
+  int radius = 70;
+  cv::Scalar color(0,0,255);
+
+  line(image, cv::Point(p.x - radius + 15, p.y), cv::Point(p.x - 15, p.y), color, 3);
+  line(image, cv::Point(p.x + radius - 15, p.y), cv::Point(p.x + 15, p.y), color, 3);
+  line(image, cv::Point(p.x, p.y + radius - 15), cv::Point(p.x, p.y + 15), color, 3);
+  line(image, cv::Point(p.x, p.y - radius + 15), cv::Point(p.x, p.y - 15), color, 3);
+  circle(image, p, 4, color, -1);
+	circle(image, p, radius, color, 5);
+}
+
 void Drawer::draw_cross_hair(float x, float y, float z){
 	glPushAttrib(GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT) ;
     glDisable(GL_LIGHTING) ;

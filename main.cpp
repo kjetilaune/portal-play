@@ -27,6 +27,7 @@
 #include "eigen/Eigen/Geometry"
 
 #include "LocalPlayer.h"
+#include "RemotePlayer.h"
 #include "drawer.h"
 #include "camera_handler.h"
 #include "bullet.h"
@@ -46,6 +47,11 @@ int current_quad = 9, current_quad_z;
 int rotcnt = 0;
 
 int bird_degrees = 0;
+
+const std::string kIpAddress = "127.0.0.1";
+const int kPortNumber = 11229;
+const int kStreamWidth = 320;
+const int kStreamHeight = 240;
 
 const int number_of_quads = 10;
 //const float screen_width_in_cm = 33.2;22.1
@@ -69,9 +75,13 @@ int x_avg = 0, y_avg = 0;
 cv::Mat image, gray_image, resized_gray_image, target_texture, flow_image,
   thresholded_flow_image, current_threshold_image, opponent;
 
-LocalPlayer *local_player;
+cv::Mat opponent2;
+
+LocalPlayer* local_player;
+RemotePlayer* remote_player;
 const int IS_BGR = 0;
 const int IS_BGRA = 1;
+const int IS_GRAY = 2;
 
 
 
@@ -193,6 +203,8 @@ void draw_opponent(Mat &opponent, float x, float y, float z, int code, int scree
   Mat opponentRGBA(opponent.size(), CV_8UC4, image_data);
   if (code == IS_BGR)
     cvtColor(opponent, opponentRGBA, CV_BGR2RGBA, 4);
+  else if(code == IS_GRAY)
+    cvtColor(opponent, opponentRGBA, CV_GRAY2RGBA, 4);
   else if (code == IS_BGRA)
     cvtColor(opponent, opponentRGBA, CV_BGRA2RGBA, 4);
 
@@ -397,7 +409,7 @@ void display()
       
     }
     if (!first)
-      draw_opponent(opponent, 0, 0, -180, IS_BGR, screen_width_in_cm, screen_height_in_cm);
+      draw_opponent(opponent2, 0, 0, -180, IS_GRAY, screen_width_in_cm, screen_height_in_cm);
     draw_opponent(target_texture, 0, 0, local_player->getFaceData().center.z - 2, IS_BGRA, 1, 1);
     
     //drawViewBox(screen_width_in_cm, screen_height_in_cm);
@@ -460,10 +472,12 @@ void idle()
   Mat prev, prev_gray;
   // grab a frame from the camera
   image = local_player->getImage();
-  opponent = camera_handler->get_image_from_opponent();
+
+  //opponent = camera_handler->get_image_from_opponent();
+  opponent2 = remote_player->getImage();
 
   //namedWindow( "DisplayWindow", WINDOW_AUTOSIZE );
-  //imshow("DisplayWindow", opponent);
+  //imshow("DisplayWindow", opponent2);
 
   double aspect_ratio = image.size().width*1.0 / image.size().height;
   Size s(320, int(320.0/aspect_ratio));
@@ -564,14 +578,12 @@ int main( int argc, char **argv )
   target_texture = imread(texture_path, CV_LOAD_IMAGE_UNCHANGED);
     
   if ( argc == 1 ) {
-    local_player = new LocalPlayer("Kjetil", intrinsicCameraParameters, screen_width_in_cm, screen_height_in_cm);
   } else if ( argc == 2 ) {
     char* paramsPath(argv[1]);
     std::vector<float> paramList;
     populateParameterList(paramsPath, paramList);
     assignParameterVariables(paramList);
 
-    local_player = new LocalPlayer("Kjetil", intrinsicCameraParameters, screen_width_in_cm, screen_height_in_cm);
     //camera_handler = new CameraHandler();
   } else if (argc == 3){
     char* paramsPath(argv[1]);
@@ -579,16 +591,26 @@ int main( int argc, char **argv )
     populateParameterList(paramsPath, paramList);
     assignParameterVariables(paramList);
 
-    local_player = new LocalPlayer("Kjetil", intrinsicCameraParameters, screen_width_in_cm, screen_height_in_cm);
-
     //Remove when remoteplayer can provide images
-    camera_handler = new CameraHandler(argv[2]);
+    //camera_handler = new CameraHandler(argv[2]);
   } else {
     fprintf( stderr, "usage: %s [<filename>]\n", argv[0] );
     return 1;
   }
 
-  
+  remote_player = new RemotePlayer("Alex",
+                                   kStreamHeight,
+                                   kStreamWidth,
+                                   kPortNumber);
+
+  local_player = new LocalPlayer("Kjetil", 
+                                 intrinsicCameraParameters, 
+                                 screen_width_in_cm, 
+                                 screen_height_in_cm,
+                                 kIpAddress,
+                                 kPortNumber,
+                                 kStreamWidth,
+                                 kStreamHeight);
 
   // get width and height
   w = local_player->get_width();
