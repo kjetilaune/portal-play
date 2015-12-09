@@ -27,16 +27,17 @@ public:
 public:
   virtual cv::Mat getImage();
   virtual FaceData getFaceData();
-  virtual void drawBullet();
+  
   int hit;
   int shoot;
+  float real_x, real_y;
 //IReceiverCallback
 public:
   virtual void OnReceived(cv::Mat mat, Message msg);
 
 private:
   NetworkReceiverPtr _receiver;
-  
+
 
 };
 typedef std::shared_ptr<RemotePlayer> RemotePlayerPtr;

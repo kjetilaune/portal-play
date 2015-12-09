@@ -4,6 +4,7 @@
 const int FH = 19;
 
 int portNumber2;
+float real_x_value, real_y_value;
 //-------------------------------------------------------------------------
 LocalPlayer::LocalPlayer(std::string name, 
                          IntrinsicCameraParameters param, 
@@ -90,6 +91,9 @@ void LocalPlayer::find_face(){
   z = intrinsicCameraParameters.fy * (FH) / (max_rect.height);
   x = pixel_to_cm(max_rect.x + max_rect.width/2.0, max_rect.width); //NOT sure why 1.25 gives nice results...
   y = ((_currentImg.size().height/2.0 - (max_rect.y + max_rect.height/2)) / (max_rect.height / FH));
+
+  real_x_value = x;
+  real_y_value = y;
 
   if (x < -screen_width_in_cm/2)
     x = -screen_width_in_cm/2 + 0.1;
@@ -198,6 +202,9 @@ void LocalPlayer::updateRemotePlayer() {
   hit = 0;
   msg.shoot = this->shoot;
   this->shoot = 0;
+
+  msg.real_x = real_x_value;
+  msg.real_y = real_y_value;
 
   _sender->Send(this->_currentImg, msg);
 }

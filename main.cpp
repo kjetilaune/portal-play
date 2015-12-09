@@ -95,7 +95,7 @@ vector<Rect> rect;
 int quad_x, quad_y, quad_z;
 
 const String frontalface_cascade = "/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml";
-const String texture_path = "../media/heart.png";
+const String texture_path = "../media/heart64.png";
 CascadeClassifier frontalface_cascade_classifier;
 const int FH = 19; // faceheight
 
@@ -167,7 +167,7 @@ void find_clipping_planes(float x, float y, float z){
    glTranslatef(-pe(0), -pe(1), -pe(2));
 }
 
-void draw_opponent(Mat &opponent, float x, float y, float z, int code, int screen_width_in_cm, int screen_height_in_cm){
+void draw_texture(Mat &opponent, float x, float y, float z, int code, int screen_width_in_cm, int screen_height_in_cm){
   //Texture set-up
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -210,12 +210,12 @@ void draw_opponent(Mat &opponent, float x, float y, float z, int code, int scree
   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
   glBindTexture(GL_TEXTURE_2D, 3);
 
-  //cout << (int)(log2(image.size().width) + 1) << " " << image.size().width << endl;
+  
 
   //Using the ratio between pixels and cm for both padded and unpadded images
   float quad_w = (pow(2, xpaddingexp) * screen_width_in_cm)/(opponent.size().width*2);
   float quad_h = (pow(2, ypaddingexp) * screen_height_in_cm)/(opponent.size().height*2);
-  //cout << xpaddingexp << endl;
+  
   glBegin(GL_QUADS); 
     glTexCoord2f(0.0, 0.0);
     glVertex3f(x-quad_w, y-quad_h, z);
@@ -394,13 +394,13 @@ void display()
     //bird->draw(0,0,0, rotcnt%360);
     if(!first)
       gsc->draw();
-    
 
 
-   
+
+    float mask_scale = remote_player->getImage().size().width * 1.0 / local_player->getImage().size().width;
     if (!first)
-      draw_opponent(opponent2, 0, 0, -180, IS_GRAY, screen_width_in_cm, screen_height_in_cm);
-    //draw_opponent(target_texture, 0, 0, local_player->getFaceData().center.z - 2, IS_BGRA, 1, 1);
+      draw_texture(opponent2, 0, 0, -180, IS_GRAY, screen_width_in_cm, screen_height_in_cm);
+    //draw_texture(target_texture, -remote_player->real_x * mask_scale, remote_player->real_y * mask_scale, -180+0.01, IS_BGRA, 6*0.8, 6);
 
     drawer->draw_cross_hair(local_player->getFaceData().center.x, local_player->getFaceData().center.y, local_player->getFaceData().center.z);
 

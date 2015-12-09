@@ -27,9 +27,6 @@ FaceData RemotePlayer::getFaceData() {
   return _faceData;
 }
 
-void RemotePlayer::drawBullet(){
-
-}
 
 //-------------------------------------------------------------------------
 void RemotePlayer::OnReceived(cv::Mat mat, Message msg) {
@@ -47,6 +44,7 @@ void RemotePlayer::OnReceived(cv::Mat mat, Message msg) {
     hit = msg.hit;
   if (shoot == 0)
     shoot = msg.shoot;
-
+  real_x = msg.real_x;
+  real_y = msg.real_y;
   _faceData = fd;
 }

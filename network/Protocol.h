@@ -19,6 +19,8 @@ struct _Message {
   // Game interaction information.
   int shoot;
   int hit;
+  float real_x;
+  float real_y;
 };
 
 #endif //PROTOCOL_H
