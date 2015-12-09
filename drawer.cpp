@@ -47,6 +47,17 @@ void Drawer::draw_fire_button(cv::Mat &image){
 	circle(image, p, radius, color, 5);
 }
 
+void Drawer::draw_lives(cv::Mat &image, float numberOfLives){
+  cv::Mat mask = cv::imread("../media/heart64.png", CV_LOAD_IMAGE_UNCHANGED);
+
+  cv::Mat resized_mask;
+  cv::resize(mask, resized_mask, cv::Size(50, 50));
+  cv::flip(resized_mask, resized_mask, -1);
+  for (int i = 0; i < numberOfLives; i++){
+    overlayImage(image, resized_mask, image, cv::Point2i(image.size().width/2 - numberOfLives/2*100 + 100*i, image.size().height - 100));
+  }
+}
+
 void Drawer::draw_cross_hair(float x, float y, float z){
 	glPushAttrib(GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT) ;
     glDisable(GL_LIGHTING) ;

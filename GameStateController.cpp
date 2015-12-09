@@ -39,6 +39,7 @@ void GameStateController::draw(){
 
 		if(remoteBullet->z >= localPlayer->getFaceData().center.z){
 			if (is_local_player_hit()){
+				localPlayer->decrease_lives();
 				//Tell remote player that local got hit and set animation 1 flag
 				localPlayer->hit = 1;
 				this->hit_animation = 1;
