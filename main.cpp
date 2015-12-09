@@ -108,7 +108,7 @@ Bird *bird1, *bird2, *bird3;
 bool hit_animation = false;
 
 time_t first_time, second_time;
-
+Mat empty_mat;
 
 
 void cross_product(Eigen::VectorXd& vec, Eigen::VectorXd a, Eigen::VectorXd b){
@@ -322,8 +322,8 @@ void display()
   
   glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
   
-  Mat empty_mat;
-  copyMakeBorder(fully_transparent, empty_mat, image.size().height/2,image.size().height/2,image.size().width/2,image.size().width/2, BORDER_CONSTANT, Scalar(0,0,0,0));
+  
+  
 
   // show the current camera frame
   //based on the way cv::Mat stores data, you need to flip it before displaying it
@@ -332,10 +332,12 @@ void display()
   double windowWidth = glutGet(GLUT_SCREEN_WIDTH);
   double windowHeight = glutGet(GLUT_SCREEN_HEIGHT);
   
-
+  
+  copyMakeBorder(fully_transparent, empty_mat, image.size().height/2,image.size().height/2,image.size().width/2,image.size().width/2, BORDER_CONSTANT, Scalar(0,0,0,0));
   drawer->draw_fire_button(empty_mat);
   drawer->draw_waving_hand_button(empty_mat);
   drawer->draw_lives(empty_mat, local_player->get_lives());
+  
   glDrawPixels( empty_mat.size().width, empty_mat.size().height, GL_BGRA, GL_UNSIGNED_BYTE, empty_mat.ptr() );
   //calculate_average_face();
   cv::Mat local_mat = local_player->getImage();
@@ -469,8 +471,8 @@ void idle()
 
   double aspect_ratio = image.size().width*1.0 / image.size().height;
   Size s(320, int(320.0/aspect_ratio));
-
-  first = false;
+  if (!image.empty())
+    first = false;
 
 }
 

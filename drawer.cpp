@@ -48,7 +48,7 @@ void Drawer::draw_fire_button(cv::Mat &image){
 }
 
 void Drawer::draw_waving_hand_button(cv::Mat &image){
-  cv::Mat mask = cv::imread("../media/wavinghand2.png", CV_LOAD_IMAGE_UNCHANGED);
+  cv::Mat mask = cv::imread("../media/wavinghand128.png", CV_LOAD_IMAGE_UNCHANGED);
   cv::Mat resized_mask;
   cv::resize(mask, resized_mask, cv::Size(150, 150));
   cv::flip(resized_mask, resized_mask, -1);
