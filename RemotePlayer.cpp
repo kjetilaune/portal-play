@@ -9,6 +9,8 @@ RemotePlayer::RemotePlayer(std::string playerName,
     
   _receiver.reset(new NetworkReceiver(width, heigth, this));
   _receiver->Listen(serverPort);
+  hit = 0;
+  shoot = 0;
 
   //cv::namedWindow("NetworkTest", CV_WINDOW_AUTOSIZE);
 }
@@ -25,6 +27,10 @@ FaceData RemotePlayer::getFaceData() {
   return _faceData;
 }
 
+void RemotePlayer::drawBullet(){
+
+}
+
 //-------------------------------------------------------------------------
 void RemotePlayer::OnReceived(cv::Mat mat, Message msg) {
  
@@ -37,6 +43,10 @@ void RemotePlayer::OnReceived(cv::Mat mat, Message msg) {
   fd.topright = msg.topright;
   fd.downright = msg.downright;
   fd.downleft = msg.downright;
+  if (hit != 1)
+    hit = msg.hit;
+  if (shoot == 0)
+    shoot = msg.shoot;
 
   _faceData = fd;
 }

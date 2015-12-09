@@ -17,7 +17,7 @@ LocalPlayer::LocalPlayer(std::string name,
   
   portNumber2 = portNumber;
   if (portNumber2%2 == 1)
-    camera_handler = new CameraHandler("../media/test_video.mov");
+    camera_handler = new CameraHandler("../media/test_video2.mov");
   else
     camera_handler = new CameraHandler();
   screen_width_in_cm = width_in_cm;
@@ -47,7 +47,7 @@ LocalPlayer::LocalPlayer(std::string name,
   double aspect_ratio = _currentImg.size().width*1.0 / _currentImg.size().height;
   resize(gray_image, resized_gray_image, cv::Size(320.0, (int)(320.0/aspect_ratio)));
 
-  bullet = new Bullet(0,0,0);
+  
 }
 
 float LocalPlayer::pixel_to_cm(int x, int rec_width){
@@ -121,7 +121,7 @@ void LocalPlayer::calculate_optical_flow(){
     gray_image = _currentImg;
   
   cv::resize(gray_image, resized_gray_image, cv::Size(320.0, (int)(320.0/aspect_ratio)));
-  //std::cout << portNumber2 << " previous_gray_image size: " << previous_gray_image.channels() << std::endl << "resized_gray_image size: " << resized_gray_image.channels() << std::endl << std::endl;
+  
   //Calculate optical flow
   cv::Mat flow(previous_gray_image.size(), CV_32FC1), flow_downscaled;
   calcOpticalFlowFarneback(previous_gray_image, resized_gray_image, flow_downscaled, 0.5, 1, 3, 1, 10, 1.1, 0);
@@ -140,10 +140,14 @@ void LocalPlayer::calculate_optical_flow(){
 
 }
 
-bool LocalPlayer::is_firing(){
+bool LocalPlayer::is_fire_button_pushed(){
   cv::Rect fire_rect(20, 20, 160, 160);
   cv::Mat right_square(current_threshold_image, fire_rect);
-  return (cv::countNonZero(right_square) > 2000); 
+  if (cv::countNonZero(right_square) > 2000){
+    this->shoot = 1;
+    return true;
+  }
+  return false;
   
 }
 
@@ -171,9 +175,7 @@ void LocalPlayer::update(){
     _currentImg = camera_handler->get_image_from_camera();
   find_face();
   calculate_optical_flow();
-  std::cout << is_firing() << std::endl;
-  if (is_firing())
-    bullet->draw();
+
   //Shows optical flow
   //cv::namedWindow( "DisplayWindow", cv::WINDOW_AUTOSIZE );
   //cv::imshow("DisplayWindow", current_threshold_image);
@@ -192,6 +194,10 @@ void LocalPlayer::updateRemotePlayer() {
   msg.topright = _faceData.topright;
   msg.downleft = _faceData.downleft;
   msg.downright = _faceData.downright;
+  msg.hit = this->hit;
+  hit = 0;
+  msg.shoot = this->shoot;
+  this->shoot = 0;
 
-  _sender->Send(this->_currentImg);
+  _sender->Send(this->_currentImg, msg);
 }

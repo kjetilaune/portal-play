@@ -8,7 +8,7 @@ public:
 	Bullet();
 	Bullet(float, float, float);
 
-	void draw();
+	void draw(int);
 
 
 };

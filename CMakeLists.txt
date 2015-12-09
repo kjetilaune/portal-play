@@ -18,7 +18,9 @@ SET(MySources
   bullet.cpp 
   bullet.h 
   bird.cpp 
-  bird.h)
+  bird.h
+  GameStateController.cpp
+  GameStateController.h)
 
 set(CMAKE_CXX_FLAGS 
   "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-deprecated-declarations -Wno-writable-strings -Wno-unicode-whitespace")

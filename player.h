@@ -32,6 +32,7 @@ public:
 public:
   virtual cv::Mat getImage() = 0;
   virtual FaceData getFaceData() = 0;
+  virtual void drawBullet() = 0;
 
 protected:
   std::string _name;

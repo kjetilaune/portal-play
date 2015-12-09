@@ -25,12 +25,12 @@ Bullet::Bullet(float x, float y, float z){
 }
 
 
-void Bullet::draw(){
-	this->z -= 10;
+void Bullet::draw(int rate){
+	this->z += rate;
 	glPushMatrix();
 		glPushAttrib( GL_CURRENT_BIT );
 		glTranslatef(this->x, this->y, this->z);
-		glColor3f(0.0f, 1.0f, 0.0f);
-		glutSolidSphere(0.1, 20, 20);
+		glColor3f(1.0f, 0.0f, 0.0f);
+		glutSolidSphere(0.3, 20, 20);
 	glPopMatrix();
 }

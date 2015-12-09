@@ -40,12 +40,16 @@ public:
   //Must be called in order to calculate new positions
   void update();
   void updateRemotePlayer();
+  bool is_fire_button_pushed();
+
+  int hit;
+  int shoot;
 
 private:
   float pixel_to_cm(int, int);
 	void find_face();
   void calculate_optical_flow();
-  bool is_firing();
+  
 
 private:
   //OpenCv members

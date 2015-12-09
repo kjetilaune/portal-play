@@ -32,6 +32,7 @@
 #include "camera_handler.h"
 #include "bullet.h"
 #include "bird.h"
+#include "GameStateController.h"
 
 #include <tgmath.h> //for log2
 
@@ -80,6 +81,8 @@ cv::Mat opponent2, fully_transparent;
 
 LocalPlayer* local_player;
 RemotePlayer* remote_player;
+GameStateController *gsc;
+
 const int IS_BGR = 0;
 const int IS_BGRA = 1;
 const int IS_GRAY = 2;
@@ -106,31 +109,6 @@ bool hit_animation = false;
 
 time_t first_time, second_time;
 
-// a useful function for displaying your coordinate system
-void drawAxes(float length)
-{
-  glPushAttrib(GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT) ;
-
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE) ;
-  glDisable(GL_LIGHTING) ;
-
-  glBegin(GL_LINES) ;
-  glColor3f(1,0,0) ;
-  glVertex3f(0,0,0) ;
-  glVertex3f(length,0,0);
-
-  glColor3f(0,1,0) ;
-  glVertex3f(0,0,0) ;
-  glVertex3f(0,length,0);
-
-  glColor3f(0,0,1) ;
-  glVertex3f(0,0,0) ;
-  glVertex3f(0,0,length);
-  glEnd() ;
-
-
-  glPopAttrib() ;
-}
 
 
 void cross_product(Eigen::VectorXd& vec, Eigen::VectorXd a, Eigen::VectorXd b){
@@ -260,14 +238,19 @@ double get_random_double(int min, int max){
   return rand() % (abs(max) + abs(min)) - abs(min);
 }
 
-void display_hit_animation(Mat &image, float x, float y, float z){
+void display_hit_animation(Mat &image, float x, float y, float z, int colortype){
   second_time = time(NULL);
     
-  if (difftime(second_time, first_time) > 3){
+  if (difftime(second_time, first_time) > 2){
     hit_animation = false;
+    gsc->hit_animation = 0;
   }
 
-  glDrawPixels( image.size().width, image.size().height, GL_BGR, GL_UNSIGNED_BYTE, image.ptr() );
+  if (colortype == IS_BGR)
+    glDrawPixels( image.size().width, image.size().height, GL_BGR, GL_UNSIGNED_BYTE, image.ptr() );
+  else if (colortype == IS_GRAY)
+    glDrawPixels( image.size().width, image.size().height, GL_LUMINANCE, GL_UNSIGNED_BYTE, image.ptr() );
+
   glViewport(0, 0, image.size().width, image.size().height);
   
   glMatrixMode(GL_PROJECTION);
@@ -353,9 +336,28 @@ void display()
   drawer->draw_fire_button(empty_mat);
   glDrawPixels( empty_mat.size().width, empty_mat.size().height, GL_BGRA, GL_UNSIGNED_BYTE, empty_mat.ptr() );
   //calculate_average_face();
+  cv::Mat local_mat = local_player->getImage();
+  cv::Mat remote_mat = remote_player->getImage();
+  cv::Mat shown_mat;
 
-  if (hit_animation){
-    display_hit_animation(tempimage, local_player->getFaceData().center.x, local_player->getFaceData().center.y, local_player->getFaceData().center.z);
+  //If hit
+  if (!hit_animation)
+    first_time = time(NULL);
+
+
+  if (gsc->hit_animation == 1){
+    hit_animation = true;
+    cv::flip(local_mat, shown_mat, -1);
+    display_hit_animation(shown_mat, local_player->getFaceData().center.x, local_player->getFaceData().center.y, local_player->getFaceData().center.z, IS_BGR);
+  }
+  //If opponent is hit
+  else if(gsc->hit_animation == 2){
+    hit_animation = true;
+    float translate_coeff = local_mat.size().width / remote_mat.size().width;
+    cv::Mat flipped;
+    cv::flip(remote_mat, flipped, 0);
+    cv::resize(flipped, shown_mat, local_mat.size(), cv::INTER_LINEAR);
+    display_hit_animation(shown_mat, remote_player->getFaceData().center.x, remote_player->getFaceData().center.y, remote_player->getFaceData().center.z, IS_GRAY);
   }
 
   else{
@@ -390,37 +392,15 @@ void display()
 
     //glRotatef(rotcnt, 0, 1, 0);
     //bird->draw(0,0,0, rotcnt%360);
+    if(!first)
+      gsc->draw();
+    
 
-    if (bullet != NULL){
-      
 
-      //cout << (bullet == NULL) << endl;
-      bullet->draw();
-      if (bullet->z < -220 || bullet->z > FLT_MAX){
-          bullet = NULL;
-      }
-      /*
-      if (bullet->x < quad_x + 1 && bullet->x > quad_x - 1 && bullet->y < quad_y + 1 && bullet->y > quad_y - 1 && bullet->z <= quad_z){
-        if (bullet->z < -220){
-          bullet = NULL;
-        }
-        first_time = time(NULL);
-        hit_animation = true;
-
-        bullet = NULL;
-        cout << " HIT " << endl;
-        quad_x = get_random_double(-8, 8);
-        quad_y = get_random_double(-4, 4);
-        quad_z = get_random_double(-20, 0);
-      }*/
-      
-    }
+   
     if (!first)
       draw_opponent(opponent2, 0, 0, -180, IS_GRAY, screen_width_in_cm, screen_height_in_cm);
     //draw_opponent(target_texture, 0, 0, local_player->getFaceData().center.z - 2, IS_BGRA, 1, 1);
-    
-    //drawViewBox(screen_width_in_cm, screen_height_in_cm);
-    //draw_random_quads();
 
     drawer->draw_cross_hair(local_player->getFaceData().center.x, local_player->getFaceData().center.y, local_player->getFaceData().center.z);
 
@@ -482,8 +462,6 @@ void idle()
 
   //opponent = camera_handler->get_image_from_video();
   opponent2 = remote_player->getImage();
-
-  
 
   double aspect_ratio = image.size().width*1.0 / image.size().height;
   Size s(320, int(320.0/aspect_ratio));
@@ -596,6 +574,7 @@ int main( int argc, char **argv )
                                  kStreamWidth,
                                  kStreamHeight);
 
+  gsc = new GameStateController(local_player, remote_player);
   // get width and height
   w = local_player->get_width();
   h = local_player->get_height();
