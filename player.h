@@ -28,6 +28,7 @@ public:
   std::string get_name(){return _name;}
 	int decrease_lives();
 	int increase_lives();
+  int get_lives();
 
 public:
   virtual cv::Mat getImage() = 0;

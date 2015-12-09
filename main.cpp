@@ -334,6 +334,7 @@ void display()
   
 
   drawer->draw_fire_button(empty_mat);
+  drawer->draw_lives(empty_mat, local_player->get_lives());
   glDrawPixels( empty_mat.size().width, empty_mat.size().height, GL_BGRA, GL_UNSIGNED_BYTE, empty_mat.ptr() );
   //calculate_average_face();
   cv::Mat local_mat = local_player->getImage();
@@ -404,6 +405,8 @@ void display()
 
     drawer->draw_cross_hair(local_player->getFaceData().center.x, local_player->getFaceData().center.y, local_player->getFaceData().center.z);
 
+
+
     glDisable(GL_LIGHTING);
     glDisable(GL_LIGHT0 );
     glDisable(GL_COLOR_MATERIAL);
@@ -446,6 +449,7 @@ void keyboard( unsigned char key, int xxx, int yyy )
     case 'f':
     if (bullet == NULL)
         bullet = new Bullet(local_player->getFaceData().center.x, local_player->getFaceData().center.y, local_player->getFaceData().center.z);
+      local_player->decrease_lives();
       break;
     default:
       break;

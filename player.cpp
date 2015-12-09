@@ -21,3 +21,7 @@ int Player::increase_lives(){
 	_lives++;
 	return _lives;
 }
+
+int Player::get_lives(){
+	return _lives;
+}
