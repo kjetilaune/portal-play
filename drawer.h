@@ -22,6 +22,7 @@ public:
 	                           cv::Mat &output, 
 	                           cv::Point2i location);
 	static void draw_lives(cv::Mat&, float);
+	static void draw_waving_hand_button(cv::Mat &image);
 };
 
 #endif //DRAWER_H_
