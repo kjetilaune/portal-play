@@ -95,7 +95,7 @@ vector<Rect> rect;
 int quad_x, quad_y, quad_z;
 
 const String frontalface_cascade = "/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml";
-const String texture_path = "../media/heart64.png";
+const String texture_path = "../media/hockeymask420.png";
 CascadeClassifier frontalface_cascade_classifier;
 const int FH = 19; // faceheight
 
@@ -400,7 +400,7 @@ void display()
     float mask_scale = remote_player->getImage().size().width * 1.0 / local_player->getImage().size().width;
     if (!first)
       draw_texture(opponent2, 0, 0, -180, IS_GRAY, screen_width_in_cm, screen_height_in_cm);
-    //draw_texture(target_texture, -remote_player->real_x * mask_scale, remote_player->real_y * mask_scale, -180+0.01, IS_BGRA, 6*0.8, 6);
+    //draw_texture(target_texture, -remote_player->real_x * mask_scale, remote_player->real_y * mask_scale, -180+0.01, IS_BGRA, 6, 6);
 
     drawer->draw_cross_hair(local_player->getFaceData().center.x, local_player->getFaceData().center.y, local_player->getFaceData().center.z);
 

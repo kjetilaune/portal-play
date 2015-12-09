@@ -5,6 +5,7 @@ const int FH = 19;
 
 int portNumber2;
 float real_x_value, real_y_value;
+cv::Mat mask = cv::imread("../media/smiley256.png", CV_LOAD_IMAGE_UNCHANGED);
 //-------------------------------------------------------------------------
 LocalPlayer::LocalPlayer(std::string name, 
                          IntrinsicCameraParameters param, 
@@ -61,6 +62,57 @@ float LocalPlayer::pixel_to_cm(int x, int rec_width){
   return 0;
 }
 
+//Function found at http://jepsonsblog.blogspot.com/2012/10/overlay-transparent-image-in-opencv.html
+void overlayImage(const cv::Mat &background, const cv::Mat &foreground, 
+  cv::Mat &output, cv::Point2i location)
+{
+  background.copyTo(output);
+
+
+  // start at the row indicated by location, or at row 0 if location.y is negative.
+  for(int y = std::max(location.y , 0); y < background.rows; ++y)
+  {
+    int fY = y - location.y; // because of the translation
+
+    // we are done of we have processed all rows of the foreground image.
+    if(fY >= foreground.rows)
+      break;
+
+    // start at the column indicated by location, 
+
+    // or at column 0 if location.x is negative.
+    for(int x = std::max(location.x, 0); x < background.cols; ++x)
+    {
+      int fX = x - location.x; // because of the translation.
+
+      // we are done with this row if the column is outside of the foreground image.
+      if(fX >= foreground.cols)
+        break;
+
+      // determine the opacity of the foregrond pixel, using its fourth (alpha) channel.
+      double opacity =
+        ((double)foreground.data[fY * foreground.step + fX * foreground.channels() + 3])
+
+        / 255.;
+
+
+      // and now combine the background and foreground pixel, using the opacity, 
+
+      // but only if opacity > 0.
+      for(int c = 0; opacity > 0 && c < output.channels(); ++c)
+      {
+        unsigned char foregroundPx =
+          foreground.data[fY * foreground.step + fX * foreground.channels() + c];
+        unsigned char backgroundPx =
+          background.data[y * background.step + x * background.channels() + c];
+        output.data[y*output.step + output.channels()*x + c] =
+          backgroundPx * (1.-opacity) + foregroundPx * opacity;
+      }
+    }
+  }
+}
+
+
 void LocalPlayer::find_face(){
   
   std::vector<cv::Rect> rect;
@@ -87,6 +139,18 @@ void LocalPlayer::find_face(){
   if (true)
     //box is 0.8*height
     rectangle(_currentImg, cv::Point(max_rect.x + 0.1*max_rect.width, max_rect.y), cv::Point(max_rect.x + 0.9*max_rect.width, max_rect.y + max_rect.height), color, 1);  
+
+
+  cv::Mat _currentImg2, mask2;
+  cv::cvtColor(_currentImg, _currentImg2, CV_BGR2BGRA);
+  cv::Mat smallMask;
+  if (max_rect.width > 0){
+    cv::resize(mask, smallMask, cv::Size(max_rect.width*1.2, max_rect.height*1.2));
+  }
+  overlayImage(_currentImg2, smallMask, _currentImg, cv::Point2i(max_rect.x*0.9,max_rect.y*0.9));
+  cv::cvtColor(_currentImg, _currentImg, CV_BGRA2BGR);
+
+
 
   float x, y, z;
 
