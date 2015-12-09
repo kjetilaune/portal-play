@@ -56,11 +56,13 @@ LocalPlayer::LocalPlayer(std::string name,
   isInTriggeringDirection = false;
 
   // Deploy mask vector
-  currentMask = cv::imread("../media/targettexture.png", CV_LOAD_IMAGE_UNCHANGED);  
+  currentMask = cv::imread("../media/empty.png", CV_LOAD_IMAGE_UNCHANGED);  
   
+  vectMasks.push_back(cv::imread("../media/empty.png", CV_LOAD_IMAGE_UNCHANGED));    
   vectMasks.push_back(cv::imread("../media/darth_vader.png", CV_LOAD_IMAGE_UNCHANGED));
   vectMasks.push_back(cv::imread("../media/storm_trooper.png", CV_LOAD_IMAGE_UNCHANGED));
   vectMasks.push_back(cv::imread("../media/guy_fawkes.png", CV_LOAD_IMAGE_UNCHANGED));  
+
 }
 
 float LocalPlayer::pixel_to_cm(int x, int rec_width){
