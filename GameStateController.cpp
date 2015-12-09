@@ -57,7 +57,7 @@ void GameStateController::draw(){
 
 	//This player hit the other one
 	if (remotePlayer->hit == 1){
-		
+		remotePlayer->decrease_lives();
 		delete remoteBullet;
 		remoteBullet = 0;
 		delete localBullet;

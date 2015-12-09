@@ -337,7 +337,22 @@ void display()
   drawer->draw_fire_button(empty_mat);
   drawer->draw_waving_hand_button(empty_mat);
   drawer->draw_lives(empty_mat, local_player->get_lives());
-  
+  std::cout << remote_player->get_lives() << std::endl;
+  if (remote_player->get_lives() < 1){
+    cv::Mat temp = local_player->getImage();
+    cv::flip(temp, temp, -1);
+    drawer->draw_winner(temp);
+    
+    glDrawPixels( temp.size().width, temp.size().height, GL_BGR, GL_UNSIGNED_BYTE, temp.ptr() );
+  }
+  else if (local_player->get_lives() < 1){
+    cv::Mat temp = local_player->getImage();
+    cv::flip(temp, temp, -1);
+    drawer->draw_loser(temp);
+    
+    glDrawPixels( temp.size().width, temp.size().height, GL_BGR, GL_UNSIGNED_BYTE, temp.ptr() );
+  }
+  else{
   glDrawPixels( empty_mat.size().width, empty_mat.size().height, GL_BGRA, GL_UNSIGNED_BYTE, empty_mat.ptr() );
   //calculate_average_face();
   cv::Mat local_mat = local_player->getImage();
@@ -414,6 +429,7 @@ void display()
     glDisable(GL_LIGHT0 );
     glDisable(GL_COLOR_MATERIAL);
     glDisable(GL_BACK);
+  }
  }
 
   // show the rendering on the screen

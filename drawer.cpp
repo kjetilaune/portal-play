@@ -67,6 +67,23 @@ void Drawer::draw_lives(cv::Mat &image, float numberOfLives){
   }
 }
 
+void Drawer::draw_winner(cv::Mat &image){
+  cv::Mat mask = cv::imread("../media/winner.png", CV_LOAD_IMAGE_UNCHANGED);
+  cv::Mat resized_mask;
+  cv::resize(mask, resized_mask, cv::Size(150, 150));
+  cv::flip(resized_mask, resized_mask, 0);
+  overlayImage(image, resized_mask, image, cv::Point2i(100, image.size().height - 200));
+}
+
+void Drawer::draw_loser(cv::Mat &image){
+  cv::Mat mask = cv::imread("../media/loser.png", CV_LOAD_IMAGE_UNCHANGED);
+  cv::Mat resized_mask;
+  //cv::resize(mask, resized_mask, cv::Size(150, 150));
+  cv::flip(mask, resized_mask, 0);
+  overlayImage(image, resized_mask, image, cv::Point2i(100, image.size().height - 200));
+}
+
+
 void Drawer::draw_cross_hair(float x, float y, float z){
 	glPushAttrib(GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT) ;
     glDisable(GL_LIGHTING) ;
