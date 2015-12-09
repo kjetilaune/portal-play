@@ -48,6 +48,7 @@ LocalPlayer::LocalPlayer(std::string name,
   double aspect_ratio = _currentImg.size().width*1.0 / _currentImg.size().height;
   resize(gray_image, resized_gray_image, cv::Size(320.0, (int)(320.0/aspect_ratio)));
 
+  direction = 0;
   
 }
 
@@ -61,16 +62,18 @@ float LocalPlayer::pixel_to_cm(int x, int rec_width){
 }
 
 void LocalPlayer::find_face(){
+  
   std::vector<cv::Rect> rect;
   cv::Mat gray_image, gray_image_downsized;
   cv::cvtColor(_currentImg, gray_image, CV_RGB2GRAY);
   cv::resize(gray_image, gray_image_downsized, cv::Size(300, 300*gray_image.size().height/gray_image.size().width));
 
-  frontalface_cascade_classifier.detectMultiScale(gray_image_downsized, rect, 1.1, 2, CV_HAAR_SCALE_IMAGE|CV_HAAR_FIND_BIGGEST_OBJECT, cv::Size(25,25));
+  frontalface_cascade_classifier.detectMultiScale(gray_image_downsized, rect, 1.1, 2, CV_HAAR_SCALE_IMAGE|CV_HAAR_FIND_BIGGEST_OBJECT, cv::Size(50,50));
 
+
+  cv::Rect max_rect;
   //Find largest face
   cv::Scalar color(0,255,255);
-  cv::Rect max_rect;
   if(rect.size() > 0)
     max_rect = rect[0];
   for (int i = 0; i < rect.size(); i++){
@@ -91,6 +94,8 @@ void LocalPlayer::find_face(){
   z = intrinsicCameraParameters.fy * (FH) / (max_rect.height);
   x = pixel_to_cm(max_rect.x + max_rect.width/2.0, max_rect.width); //NOT sure why 1.25 gives nice results...
   y = ((_currentImg.size().height/2.0 - (max_rect.y + max_rect.height/2)) / (max_rect.height / FH));
+
+  //std::cout << x << ", " << y << std::endl;  
 
   real_x_value = x;
   real_y_value = y;
@@ -127,21 +132,24 @@ void LocalPlayer::calculate_optical_flow(){
   cv::resize(gray_image, resized_gray_image, cv::Size(320.0, (int)(320.0/aspect_ratio)));
   
   //Calculate optical flow
-  cv::Mat flow(previous_gray_image.size(), CV_32FC1), flow_downscaled;
+
+  cv::Mat flow_downscaled;
   calcOpticalFlowFarneback(previous_gray_image, resized_gray_image, flow_downscaled, 0.5, 1, 3, 1, 10, 1.1, 0);
-   for (int i = 0; i < flow_downscaled.rows; i++){
+
+  // flow_l2
+  cv::Mat flow_l2(previous_gray_image.size(), CV_32FC1);
+  for (int i = 0; i < flow_downscaled.rows; i++){
     for (int j = 0; j < flow_downscaled.cols; j++){
       cv::Point2f p = flow_downscaled.at<cv::Point2f>(i,j);
-      flow.at<float>(i,j) = sqrt(p.x*p.x + p.y*p.y);
+      flow_l2.at<float>(i,j) = sqrt(p.x*p.x + p.y*p.y);
     } 
   }
 
   cv::Mat a, thresholded_flow_image;
-  cv::resize(flow, a, cv::Size(_currentImg.size().width, _currentImg.size().height));  
+  cv::resize(flow_l2, a, cv::Size(_currentImg.size().width, _currentImg.size().height));
   cv::threshold(a, thresholded_flow_image, 10, 255, cv::THRESH_BINARY);
 
   current_threshold_image = thresholded_flow_image.clone();
-
 }
 
 bool LocalPlayer::is_fire_button_pushed(){
@@ -153,6 +161,39 @@ bool LocalPlayer::is_fire_button_pushed(){
   }
   return false;
   
+}
+
+int LocalPlayer::get_selection_direction() {
+
+  cv::Rect rect1(
+      current_threshold_image.size().width-180, 
+      180, 
+      160, 
+      160);
+
+  cv::Rect rect2(
+      current_threshold_image.size().width-340, 
+      180, 
+      160, 
+      160);
+
+  cv::Mat square1(current_threshold_image, rect1);
+  cv::Mat square2(current_threshold_image, rect2);
+
+  if(direction == 0 
+      && cv::countNonZero(square1) > 2000
+      && cv::countNonZero(square2) > 2000) {
+    if(cv::countNonZero(square1) > cv::countNonZero(square2))
+      direction = 1;
+    else
+      direction = -1;
+  }
+
+  if(cv::countNonZero(square1) == 0 && cv::countNonZero(square2) == 0) {
+    direction = 0;
+  } 
+
+  return direction;  
 }
 
 cv::Mat LocalPlayer::getImage() {

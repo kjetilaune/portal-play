@@ -41,9 +41,11 @@ public:
   void update();
   void updateRemotePlayer();
   bool is_fire_button_pushed();
+  int get_selection_direction();
 
   int hit;
   int shoot;
+  int direction;
 
 private:
   float pixel_to_cm(int, int);
@@ -55,6 +57,7 @@ private:
   //OpenCv members
 	const std::string frontalface_cascade = "/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml";
 	cv::CascadeClassifier frontalface_cascade_classifier;
+  
 	float screen_width_in_cm;
 	float screen_height_in_cm;
 	IntrinsicCameraParameters intrinsicCameraParameters;

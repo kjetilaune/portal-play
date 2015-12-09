@@ -67,6 +67,8 @@ void GameStateController::draw(){
 		//Set animation 2 flag
 		this->hit_animation = 2;
 	}
+  
+  localPlayer->get_selection_direction();
 }
 
 bool GameStateController::is_local_player_hit(){
