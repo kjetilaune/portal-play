@@ -46,12 +46,12 @@ public:
   int hit;
   int shoot;
   int direction;
+  bool isInTriggeringDirection;
 
 private:
   float pixel_to_cm(int, int);
 	void find_face();
   void calculate_optical_flow();
-  
 
 private:
   //OpenCv members
@@ -67,6 +67,9 @@ private:
   NetworkSenderPtr _sender;
 
   cv::Mat resized_gray_image, previous_gray_image, current_threshold_image;
+  cv::Mat currentMask;
+  int currentMaskIdx;
+  std::vector<cv::Mat> vectMasks;
   Bullet *bullet = NULL;
 };
 typedef std::shared_ptr<LocalPlayer> LocalPlayerPtr;

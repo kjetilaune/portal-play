@@ -7,7 +7,7 @@ const int FH = 19;
 
 int portNumber2;
 float real_x_value, real_y_value;
-cv::Mat mask = cv::imread("../media/smiley256.png", CV_LOAD_IMAGE_UNCHANGED);
+
 //-------------------------------------------------------------------------
 LocalPlayer::LocalPlayer(std::string name, 
                          IntrinsicCameraParameters param, 
@@ -52,7 +52,15 @@ LocalPlayer::LocalPlayer(std::string name,
   resize(gray_image, resized_gray_image, cv::Size(320.0, (int)(320.0/aspect_ratio)));
 
   direction = 0;
+  currentMaskIdx = 0;
+  isInTriggeringDirection = false;
+
+  // Deploy mask vector
+  currentMask = cv::imread("../media/targettexture.png", CV_LOAD_IMAGE_UNCHANGED);  
   
+  vectMasks.push_back(cv::imread("../media/darth_vader.png", CV_LOAD_IMAGE_UNCHANGED));
+  vectMasks.push_back(cv::imread("../media/storm_trooper.png", CV_LOAD_IMAGE_UNCHANGED));
+  vectMasks.push_back(cv::imread("../media/guy_fawkes.png", CV_LOAD_IMAGE_UNCHANGED));  
 }
 
 float LocalPlayer::pixel_to_cm(int x, int rec_width){
@@ -96,7 +104,7 @@ void LocalPlayer::find_face(){
   cv::cvtColor(_currentImg, _currentImg2, CV_BGR2BGRA);
   cv::Mat smallMask;
   if (max_rect.width > 0){
-    cv::resize(mask, smallMask, cv::Size(max_rect.width*1.2, max_rect.height*1.2));
+    cv::resize(currentMask, smallMask, cv::Size(max_rect.width*1.2, max_rect.height*1.2));
   }
   Drawer::overlayImage(_currentImg2, smallMask, _currentImg, cv::Point2i(max_rect.x*0.9,max_rect.y*0.9));
   cv::cvtColor(_currentImg, _currentImg, CV_BGRA2BGR);
@@ -180,31 +188,31 @@ bool LocalPlayer::is_fire_button_pushed(){
 
 int LocalPlayer::get_selection_direction() {
 
-  cv::Rect rect1(
+  cv::Rect rect_left(
       current_threshold_image.size().width-180, 
       180, 
       160, 
       160);
 
-  cv::Rect rect2(
+  cv::Rect rect_right(
       current_threshold_image.size().width-340, 
       180, 
       160, 
       160);
 
-  cv::Mat square1(current_threshold_image, rect1);
-  cv::Mat square2(current_threshold_image, rect2);
+  cv::Mat square_left(current_threshold_image, rect_left);
+  cv::Mat square_right(current_threshold_image, rect_right);
 
   if(direction == 0 
-      && cv::countNonZero(square1) > 2000
-      && cv::countNonZero(square2) > 2000) {
-    if(cv::countNonZero(square1) > cv::countNonZero(square2))
+      && cv::countNonZero(square_left) > 2000
+      && cv::countNonZero(square_right) > 2000) {
+    if(cv::countNonZero(square_left) > cv::countNonZero(square_right))
       direction = 1;
     else
       direction = -1;
   }
 
-  if(cv::countNonZero(square1) == 0 && cv::countNonZero(square2) == 0) {
+  if(cv::countNonZero(square_left) == 0 && cv::countNonZero(square_right) == 0) {
     direction = 0;
   } 
 
@@ -235,6 +243,29 @@ void LocalPlayer::update(){
     _currentImg = camera_handler->get_image_from_camera();
   find_face();
   calculate_optical_flow();
+
+  // Mask selection
+  if(isInTriggeringDirection) {
+    if(direction == 0)
+      isInTriggeringDirection = false;
+  } else {
+    int direction = get_selection_direction();
+    if(direction == 1) {
+      currentMaskIdx++;
+    } else if(direction == -1) {
+      currentMaskIdx--;
+    }
+
+    if(currentMaskIdx == (int) vectMasks.size()) {
+      currentMaskIdx = 0;
+    } else if(currentMaskIdx < 0) {
+      currentMaskIdx = vectMasks.size()-1;
+    }
+    currentMask = vectMasks[currentMaskIdx];
+
+    isInTriggeringDirection = true;
+  }
+
 
   //Shows optical flow
   //cv::namedWindow( "DisplayWindow", cv::WINDOW_AUTOSIZE );
